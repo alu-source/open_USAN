@@ -1,0 +1,6 @@
+<!DOCTYPE Board_Memory_Definition_File>
+<root name="STM32F469VGTx">
+  <MemorySegment name="FLASH1" start="0x08000000" size="0x000A0000" access="Read/Write" />
+  <MemorySegment name="RAM1" start="0x20000000" size="0x00050000" access="Read/Write" />
+  <MemorySegment name="CCM1" start="0x10000000" size="0x0010000" access="Read/Write" />
+</root>
