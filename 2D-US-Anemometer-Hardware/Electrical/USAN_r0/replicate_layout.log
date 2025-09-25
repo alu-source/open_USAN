@@ -1,0 +1,71 @@
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 392:Plugin executed on: 'win32'
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 393:Plugin executed with python version: '3.11.5 (main, Jan 19 2024, 08:13:45) [MSC v.1936 64 bit (AMD64)]'
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 394:KiCad build version: 8.0.1
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 395:Plugin version: 3.0.2
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 396:Frame repr: <wx._core.Frame object at 0x0000022D2834AC20>
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 420:Preparing replicator with C48 as a reference
+04-08 13:47:50 com_github_MitjaNemec_ReplicateLayout.replicate_layout 117:getting a list of all footprints on board
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 468:source anchor footprint is 'C48'
+Located on: ['Analog', 'frontend_0']
+With filenames: ['analog.kicad_sch', 'fronted_r0.kicad_sch']
+With sheet_id:['Analog', 'frontend_0']
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 475:Corresponding footprints are 
+[('C48', ['Analog', 'frontend_0']), ('C58', ['Analog', 'frontend_2']), ('C62', ['Analog', 'frontend_3']), ('C54', ['Analog', 'frontend_1'])]
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 487:Showing dialog
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.replicate_layout 462:constructing a list of sheets suitable for replication on level:'frontend_0', file:'fronted_r0.kicad_sch'
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.replicate_layout 499:suitable sheets are:[['Analog', 'frontend_1'], ['Analog', 'frontend_2'], ['Analog', 'frontend_3']]
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1503:Level selected: ['Analog', 'frontend_0']
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1327:Filtering list of tracks
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 493:Toolbar position: wx.Point(-46, 110)
+04-08 13:47:51 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 498:Dialog position: wx.Point(-485, 110)
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 462:constructing a list of sheets suitable for replication on level:'frontend_0', file:'fronted_r0.kicad_sch'
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 499:suitable sheets are:[['Analog', 'frontend_1'], ['Analog', 'frontend_2'], ['Analog', 'frontend_3']]
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 240:Replicating layout
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 278:Starting replication of sheets: [['Analog', 'frontend_1'], ['Analog', 'frontend_2'], ['Analog', 'frontend_3']]
+on level: ['Analog', 'frontend_0']
+with tracks=True, zone=True, text=True, text=True, intersecting=False, remove=False, locked footprints=False, group_only=False
+04-08 13:47:56 root 332:updating GUI message: 'Preparing for replication'
+04-08 13:47:56 root 337:updating GUI with: 0
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 348:Getting the list of source footprints
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 358:Getting the list of all the remaining footprints
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 365:Getting source tracks
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1327:Filtering list of tracks
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 369:Getting source zones
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 373:Getting source text items
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 377:Getting source drawing items
+04-08 13:47:56 root 332:updating GUI message: 'Replicating footprints'
+04-08 13:47:56 root 337:updating GUI with: 0
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 844:Replicating footprints
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 851:Replicating footprints on sheet ['Analog', 'frontend_1']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 851:Replicating footprints on sheet ['Analog', 'frontend_2']
+04-08 13:47:56 root 337:updating GUI with: 53
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 851:Replicating footprints on sheet ['Analog', 'frontend_3']
+04-08 13:47:56 root 332:updating GUI message: 'Replicating tracks'
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1005:Replicating tracks
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1011:Replicating tracks on sheet ['Analog', 'frontend_1']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 804:Net pairs for sheet ['Analog', 'frontend_1'] :[('TR0_H', 'TR1_H'), ('Net-(Q3-D)', 'Net-(Q6-D)'), ('+3V3', '+3V3'), ('TR0_L', 'TR1_L'), ('Net-(R11-Pad2)', 'Net-(R31-Pad2)'), ('+5V', '+5V'), ('Net-(LS1-Pad2)', 'Net-(LS2-Pad2)'), ('Vdrive', 'Vdrive'), ('TR0_A', 'TR1_A'), ('-5V', '-5V'), ('Net-(Q1-G)', 'Net-(Q4-G)'), ('Net-(JP5-B)', 'Net-(JP7-B)'), ('Net-(Q2-D)', 'Net-(Q5-D)'), ('TR0_C', 'TR1_C'), ('Net-(Q2-G)', 'Net-(Q5-G)'), ('Net-(JP4-B)', 'Net-(JP6-B)'), ('/Analog/frontend_0/Analog_LV', '/Analog/frontend_1/Analog_LV'), ('Net-(JP4-A)', 'Net-(JP6-A)'), ('Net-(C50-Pad1)', 'Net-(C55-Pad1)'), ('Net-(R14-Pad2)', 'Net-(R22-Pad2)'), ('Net-(Q1-D)', 'Net-(Q4-D)'), ('Net-(JP4-C)', 'Net-(JP6-C)'), ('Net-(Q3-G)', 'Net-(Q6-G)'), ('GND', 'GND'), ('Net-(C48-Pad1)', 'Net-(C54-Pad1)'), ('Net-(JP5-A)', 'Net-(JP7-A)')]
+04-08 13:47:56 root 337:updating GUI with: 12
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1011:Replicating tracks on sheet ['Analog', 'frontend_2']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 804:Net pairs for sheet ['Analog', 'frontend_2'] :[('Net-(Q2-G)', 'Net-(Q8-G)'), ('Net-(JP5-A)', 'Net-(JP9-A)'), ('+3V3', '+3V3'), ('Net-(Q1-D)', 'Net-(Q7-D)'), ('TR0_H', 'TR2_H'), ('Net-(JP4-A)', 'Net-(JP8-A)'), ('Net-(R11-Pad2)', 'Net-(R45-Pad2)'), ('Net-(Q1-G)', 'Net-(Q7-G)'), ('TR0_C', 'TR2_C'), ('+5V', '+5V'), ('Net-(Q3-G)', 'Net-(Q9-G)'), ('-5V', '-5V'), ('Vdrive', 'Vdrive'), ('Net-(C50-Pad1)', 'Net-(C59-Pad1)'), ('/Analog/frontend_0/Analog_LV', '/Analog/frontend_2/Analog_LV'), ('TR0_A', 'TR2_A'), ('Net-(Q2-D)', 'Net-(Q8-D)'), ('Net-(JP5-B)', 'Net-(JP9-B)'), ('Net-(Q3-D)', 'Net-(Q9-D)'), ('Net-(C48-Pad1)', 'Net-(C58-Pad1)'), ('Net-(R14-Pad2)', 'Net-(R36-Pad2)'), ('Net-(LS1-Pad2)', 'Net-(LS3-Pad2)'), ('Net-(JP4-B)', 'Net-(JP8-B)'), ('TR0_L', 'TR2_L'), ('GND', 'GND'), ('Net-(JP4-C)', 'Net-(JP8-C)')]
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1011:Replicating tracks on sheet ['Analog', 'frontend_3']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 804:Net pairs for sheet ['Analog', 'frontend_3'] :[('Net-(Q2-G)', 'Net-(Q11-G)'), ('+3V3', '+3V3'), ('Net-(Q2-D)', 'Net-(Q11-D)'), ('Net-(Q1-D)', 'Net-(Q10-D)'), ('TR0_H', 'TR3_H'), ('Net-(JP5-A)', 'Net-(JP11-A)'), ('Net-(JP5-B)', 'Net-(JP11-B)'), ('TR0_L', 'TR3_L'), ('Net-(Q1-G)', 'Net-(Q10-G)'), ('Net-(LS1-Pad2)', 'Net-(LS4-Pad2)'), ('Net-(JP4-C)', 'Net-(JP10-C)'), ('TR0_C', 'TR3_C'), ('/Analog/frontend_0/Analog_LV', '/Analog/frontend_3/Analog_LV'), ('Net-(R14-Pad2)', 'Net-(R50-Pad2)'), ('Net-(JP4-A)', 'Net-(JP10-A)'), ('+5V', '+5V'), ('-5V', '-5V'), ('Vdrive', 'Vdrive'), ('Net-(Q3-G)', 'Net-(Q12-G)'), ('Net-(C50-Pad1)', 'Net-(C63-Pad1)'), ('Net-(Q3-D)', 'Net-(Q12-D)'), ('Net-(R11-Pad2)', 'Net-(R59-Pad2)'), ('Net-(JP4-B)', 'Net-(JP10-B)'), ('TR0_A', 'TR3_A'), ('GND', 'GND'), ('Net-(C48-Pad1)', 'Net-(C62-Pad1)')]
+04-08 13:47:56 root 332:updating GUI message: 'Replicating zones'
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1075:Replicating zones
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1082:Replicating zones on sheet ['Analog', 'frontend_1']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 804:Net pairs for sheet ['Analog', 'frontend_1'] :[('TR0_H', 'TR1_H'), ('Net-(Q3-D)', 'Net-(Q6-D)'), ('+3V3', '+3V3'), ('TR0_L', 'TR1_L'), ('Net-(R11-Pad2)', 'Net-(R31-Pad2)'), ('+5V', '+5V'), ('Net-(LS1-Pad2)', 'Net-(LS2-Pad2)'), ('Vdrive', 'Vdrive'), ('TR0_A', 'TR1_A'), ('-5V', '-5V'), ('Net-(Q1-G)', 'Net-(Q4-G)'), ('Net-(JP5-B)', 'Net-(JP7-B)'), ('Net-(Q2-D)', 'Net-(Q5-D)'), ('TR0_C', 'TR1_C'), ('Net-(Q2-G)', 'Net-(Q5-G)'), ('Net-(JP4-B)', 'Net-(JP6-B)'), ('/Analog/frontend_0/Analog_LV', '/Analog/frontend_1/Analog_LV'), ('Net-(JP4-A)', 'Net-(JP6-A)'), ('Net-(C50-Pad1)', 'Net-(C55-Pad1)'), ('Net-(R14-Pad2)', 'Net-(R22-Pad2)'), ('Net-(Q1-D)', 'Net-(Q4-D)'), ('Net-(JP4-C)', 'Net-(JP6-C)'), ('Net-(Q3-G)', 'Net-(Q6-G)'), ('GND', 'GND'), ('Net-(C48-Pad1)', 'Net-(C54-Pad1)'), ('Net-(JP5-A)', 'Net-(JP7-A)')]
+04-08 13:47:56 root 337:updating GUI with: 3
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1082:Replicating zones on sheet ['Analog', 'frontend_2']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 804:Net pairs for sheet ['Analog', 'frontend_2'] :[('Net-(Q2-G)', 'Net-(Q8-G)'), ('Net-(JP5-A)', 'Net-(JP9-A)'), ('+3V3', '+3V3'), ('Net-(Q1-D)', 'Net-(Q7-D)'), ('TR0_H', 'TR2_H'), ('Net-(JP4-A)', 'Net-(JP8-A)'), ('Net-(R11-Pad2)', 'Net-(R45-Pad2)'), ('Net-(Q1-G)', 'Net-(Q7-G)'), ('TR0_C', 'TR2_C'), ('+5V', '+5V'), ('Net-(Q3-G)', 'Net-(Q9-G)'), ('-5V', '-5V'), ('Vdrive', 'Vdrive'), ('Net-(C50-Pad1)', 'Net-(C59-Pad1)'), ('/Analog/frontend_0/Analog_LV', '/Analog/frontend_2/Analog_LV'), ('TR0_A', 'TR2_A'), ('Net-(Q2-D)', 'Net-(Q8-D)'), ('Net-(JP5-B)', 'Net-(JP9-B)'), ('Net-(Q3-D)', 'Net-(Q9-D)'), ('Net-(C48-Pad1)', 'Net-(C58-Pad1)'), ('Net-(R14-Pad2)', 'Net-(R36-Pad2)'), ('Net-(LS1-Pad2)', 'Net-(LS3-Pad2)'), ('Net-(JP4-B)', 'Net-(JP8-B)'), ('TR0_L', 'TR2_L'), ('GND', 'GND'), ('Net-(JP4-C)', 'Net-(JP8-C)')]
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1082:Replicating zones on sheet ['Analog', 'frontend_3']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 804:Net pairs for sheet ['Analog', 'frontend_3'] :[('Net-(Q2-G)', 'Net-(Q11-G)'), ('+3V3', '+3V3'), ('Net-(Q2-D)', 'Net-(Q11-D)'), ('Net-(Q1-D)', 'Net-(Q10-D)'), ('TR0_H', 'TR3_H'), ('Net-(JP5-A)', 'Net-(JP11-A)'), ('Net-(JP5-B)', 'Net-(JP11-B)'), ('TR0_L', 'TR3_L'), ('Net-(Q1-G)', 'Net-(Q10-G)'), ('Net-(LS1-Pad2)', 'Net-(LS4-Pad2)'), ('Net-(JP4-C)', 'Net-(JP10-C)'), ('TR0_C', 'TR3_C'), ('/Analog/frontend_0/Analog_LV', '/Analog/frontend_3/Analog_LV'), ('Net-(R14-Pad2)', 'Net-(R50-Pad2)'), ('Net-(JP4-A)', 'Net-(JP10-A)'), ('+5V', '+5V'), ('-5V', '-5V'), ('Vdrive', 'Vdrive'), ('Net-(Q3-G)', 'Net-(Q12-G)'), ('Net-(C50-Pad1)', 'Net-(C63-Pad1)'), ('Net-(Q3-D)', 'Net-(Q12-D)'), ('Net-(R11-Pad2)', 'Net-(R59-Pad2)'), ('Net-(JP4-B)', 'Net-(JP10-B)'), ('TR0_A', 'TR3_A'), ('GND', 'GND'), ('Net-(C48-Pad1)', 'Net-(C62-Pad1)')]
+04-08 13:47:56 root 332:updating GUI message: 'Replicating text'
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1164:Replicating text
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1171:Replicating text on sheet ['Analog', 'frontend_1']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1171:Replicating text on sheet ['Analog', 'frontend_2']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1171:Replicating text on sheet ['Analog', 'frontend_3']
+04-08 13:47:56 root 332:updating GUI message: 'Replicating drawings'
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1215:Replicating drawings
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1221:Replicating drawings on sheet ['Analog', 'frontend_1']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1221:Replicating drawings on sheet ['Analog', 'frontend_2']
+04-08 13:47:56 com_github_MitjaNemec_ReplicateLayout.replicate_layout 1221:Replicating drawings on sheet ['Analog', 'frontend_3']
+04-08 13:47:57 com_github_MitjaNemec_ReplicateLayout.action_replicate_layout 256:Replication complete

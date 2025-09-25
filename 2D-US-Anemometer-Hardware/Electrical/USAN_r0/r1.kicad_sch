@@ -1,0 +1,19 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "5b8350a0-4372-4dba-9407-e0ba299cb2e6")
+	(paper "A4")
+	(lib_symbols)
+	(text "- Change V_drive converter to LMZM23601SILT, so that resistors before analogfrontend can be halfed\n- Use LDO for 3V3 and +5V to get lower noise power rails\n- Fix error that VDDA and Vref are connected !\n- Maybe remove +5V and -5V rail completly and just use +3V3 and -3V3  "
+		(exclude_from_sim no)
+		(at 25.146 28.702 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "01e4b333-651d-4b75-81dd-20fa52ae3b34")
+	)
+)

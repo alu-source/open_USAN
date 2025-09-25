@@ -1,0 +1,241 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "0f677b42-33fc-4e36-b558-bcfb4727c7bd")
+	(paper "A4")
+	(lib_symbols)
+	(sheet
+		(at 123.19 96.52)
+		(size 38.1 38.1)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "0a4654af-5378-4362-ae2e-f9c3012b0f7b")
+		(property "Sheetname" "DAC"
+			(at 123.19 95.8084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "dac.kicad_sch"
+			(at 123.19 135.2046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "USAN_r0"
+				(path "/0f677b42-33fc-4e36-b558-bcfb4727c7bd"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 123.19 45.72)
+		(size 38.1 38.1)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "0b5613fe-c1ae-4eee-a1cc-a26180b40bc9")
+		(property "Sheetname" "MCU"
+			(at 123.19 45.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "mcu.kicad_sch"
+			(at 123.19 84.4046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "USAN_r0"
+				(path "/0f677b42-33fc-4e36-b558-bcfb4727c7bd"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 173.99 45.72)
+		(size 38.1 38.1)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "712614f0-381f-4cb8-aee0-a9bbe2c6825c")
+		(property "Sheetname" "Analog"
+			(at 173.99 45.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "analog.kicad_sch"
+			(at 173.99 84.4046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "USAN_r0"
+				(path "/0f677b42-33fc-4e36-b558-bcfb4727c7bd"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 72.39 96.52)
+		(size 38.1 38.1)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "8f208e43-9a2a-4175-9af9-58425918f6e1")
+		(property "Sheetname" "IO"
+			(at 72.39 95.8084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io.kicad_sch"
+			(at 72.39 135.2046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "USAN_r0"
+				(path "/0f677b42-33fc-4e36-b558-bcfb4727c7bd"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 173.99 96.52)
+		(size 38.1 38.1)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "95a345a9-1fd1-4e45-b5a9-ad5d0e52b5ea")
+		(property "Sheetname" "R1_Ideas"
+			(at 173.99 95.8084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "r1.kicad_sch"
+			(at 173.99 135.2046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "USAN_r0"
+				(path "/0f677b42-33fc-4e36-b558-bcfb4727c7bd"
+					(page "11")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 72.39 45.72)
+		(size 38.1 38.1)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "a31e3d26-d03e-438d-8838-4c17b5996579")
+		(property "Sheetname" "Power"
+			(at 72.39 45.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power.kicad_sch"
+			(at 72.39 84.4046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "USAN_r0"
+				(path "/0f677b42-33fc-4e36-b558-bcfb4727c7bd"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)
