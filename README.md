@@ -45,14 +45,14 @@ A prantle tube and a Dantec high pression anemometer were used for velocity meas
 
 In the first test, a velocity deficit was detected near the transceiver mounting location due to transceiver blockage, as shown below. 
 
-<img src="/Paper/Matlab/raw_data_calib_at_night.png" width="800">
+<img src="Documentation/Pictures/raw_data_calib_at_night.png" width="800">
 
 The left plot shows the measured velocity magnetude and the right plot shows the measurement error of magnitude and angle over the inflow angle. 
 
 In order to counteract this phenomenon, calibration was carried out at various inflow angle and air speeds. 
 Each sensor has a slightly different optimum calibration, the data includes an averaged calibration for the sensor which does not give the best sensor performance but eliminates the need to perform a calibration.
 A semi-automated [skript] ("/2D-US-Calibration/Skript/Sensor_calibration_and_validation.m") was developed and tested to collect the raw data required for calibration. After calibration, a validation measurement was performed. 
-<img src="Paper/Matlab/valid_fine.png" width="800">
+<img src="Documentation/Pictures/valid_fine.png" width="800">
 
 
 
