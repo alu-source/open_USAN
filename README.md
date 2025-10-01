@@ -7,7 +7,7 @@
 ## 1. Overview
 <img src="Documentation/Pictures/IMG_20240823_085309016.jpg" width="300">
 The goal of this project was to create a low cost small scale 2D ultrasonic anenomter. The resulting solution is based on a STM32F4 microcontroller and uses off the shelf electrical components with a cost of around 100€, and offers multiple IO options for data output, a USB interface, a dual-channel analog output, and a synchronization signal input. The sensor can be configured with various parameters and a maximum measurement frequency of 100 Hz can be achieved.
-A detailed explanation of the working principle and the technique used can be found in my [thesis]("Documentation/Bachelor_thesis.pdf"). 
+A detailed explanation of the working principle and the technique used can be found in my [thesis](https://github.com/alu-source/open_USAN/blob/main/Documentation/Bachelor_thesis.pdf). 
 
 So this explanation will be brief:
 
@@ -16,10 +16,8 @@ The speed of sound and the airspeed are calculated with the help of two ultrasou
 <img src="Documentation/Pictures/TR_1D.png" width="300" >
 
 
-To accurately calculate the speed of the transmissions, the time of flight (ToF) between transmission and reception must be accurately measured, which requires some neat digital signal processing. An interactive MATLAB script (or PDF) with a step-by-step explanation and visualization can be found here. 
+To accurately calculate the speed of the transmissions, the time of flight (ToF) between transmission and reception must be accurately measured, which requires some neat digital signal processing.
 The sensor can be used and configured via serial terminal, all commands and expected behaviour are given in the manual.
-
-
 
 ## 2. Build instructions
 ### Hardware
