@@ -7,7 +7,7 @@
 ## 1. Overview
 <img src="Documentation/Pictures/IMG_20240823_085309016.jpg" width="300">
 The goal of this project was to create a low cost small scale 2D ultrasonic anenomter. The resulting solution is based on a STM32F4 microcontroller and uses off the shelf electrical components with a cost of around 100€, and offers multiple IO options for data output, a USB interface, a dual-channel analog output, and a synchronization signal input. The sensor can be configured with various parameters and a maximum measurement frequency of 100 Hz can be achieved.
-A detailed explanation of the working principle and the technique used can be found in my [thesis]("/Documentation/Bachelor_thesis.pdf"). 
+A detailed explanation of the working principle and the technique used can be found in my <a href="/Documentation/Bachelor_thesis.pdf" target="_blank">thesis</a>. 
 
 So this explanation will be brief:
 
