@@ -62,7 +62,8 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="main.c" left="0" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="main.c" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="21" y="36" useTextEdit="1" path="measurement.c" left="0" selected="1" top="36" codecName="Default"/>
  </Files>
  <EMStudioWindow activeProject="2D-Anemometer-Firmware_r0" fileDialogDefaultFilter="*.c" autoConnectTarget="ST-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="Driver/adc.c&#xa;&#xa;Driver/gpio.c&#xa;&#xa;Driver/timer.c&#xa;" fileDialogInitialDirectory="A:/Documente/Uni/Praxisprojekt/SVN_2/NavSys/Anemometer/2D-US-Anemometer-Firmware/STM32F4xx_HAL_Driver/Src" debugSearchPath="" autoConnectCapabilities="3455"/>
 </session>

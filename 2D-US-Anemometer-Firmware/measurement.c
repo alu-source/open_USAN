@@ -34,6 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include <stdio.h>
 #include "Sensor_config.h"
 #include "debug.h"
+#include "arm_math.h"
 
 #define START_END_TIME 700 //in us
 #define TIMING_ERROR_MARGINE 0 //in us
@@ -159,9 +160,13 @@ void measurement_init(EEPROM_Meas_OBJ * meas_data){
     uart_transmit(&USART,txt_buffer,length);
     length = sprintf(txt_buffer,"Measurement Freq -> %d\n",meas_data->duty);
     uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Number of sub measurements -> %d\n",sub_meas);
-    uart_transmit(&USART,txt_buffer,length);
 
+    length = sprintf(txt_buffer,"Actual:\n");
+    uart_transmit(&USART,txt_buffer,length);
+    length = sprintf(txt_buffer,"Number of sub measurements -> %d\n\n",200/sub_meas);
+    uart_transmit(&USART,txt_buffer,length);
+    length = sprintf(txt_buffer,"Number of sub measurements -> %d\n\n",sub_meas);
+    uart_transmit(&USART,txt_buffer,length);
   }
 
   //Init of the DSP components ! 
