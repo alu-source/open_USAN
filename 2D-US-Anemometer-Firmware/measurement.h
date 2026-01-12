@@ -51,6 +51,7 @@ void measurement_US(float * vel);
 void measurement_null (EEPROM_Filter_OBJ * filter_data);
 
 /**
+  Interleaf measurement for higher frequency measurements
 */
 void measurement_US_interleaved(float * vel);
 
