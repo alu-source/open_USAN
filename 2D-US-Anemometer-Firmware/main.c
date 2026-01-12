@@ -54,6 +54,7 @@ extern TIM_HandleTypeDef htim2;
 */
 int main(void) {
 
+  //unit_test_full();
   unit_startup();
 
   __NOP();
@@ -62,6 +63,8 @@ int main(void) {
     debug_standalone_key_test();
   #endif
 
+  //Debug 
+  //TRIGGER_MODE_FLAG = 1;
   TRIGGER_EVENT_FLAG = 0;
 
   if(TRIGGER_MODE_FLAG == 1){
@@ -83,7 +86,7 @@ int main(void) {
         gpio_pin_write(LED_1, 0);
       }
 
-      while(TRIGGER_EVENT_FLAG == 0){ // Waiting for Trigger
+      while(TRIGGER_EVENT_FLAG == 0){ // Waiting for trigger
           __NOP();
           if(trigger_timeout_value < __HAL_TIM_GET_COUNTER(&htim2)){ // Trigger time out
               DAC_write(0, 0, 1);

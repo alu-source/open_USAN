@@ -29,16 +29,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include "Shot.h"
 
 
-/*
+/**
   Some of the functions are broken and will not be fixed !
     -> may be used to get an inside of how things were handelt for testing
 */
 
 
-/*
+/**
   Funktion to Transver data From MCU to Matlab 
 */
 void debug_matlab_data_transfer(void);
+
+void debug_matlab_key_test(void);
+void debug_perf_test_benchmark(void);
+
 
 /*
 * Used to test diffrent keys, data output via terminal takes around an hour

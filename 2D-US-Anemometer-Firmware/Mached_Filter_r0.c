@@ -21,18 +21,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "arm_math.h"
 #include "main.h"
 #include "Algo_helper.h"
 #include "Matched_Filter_r0.h"
 #include "Shot.h"
 #include "Sensor_config.h"
 #include "Unittest.h"
+#include <stdio.h>
 #include "packet_transfer.h"
-#include "arm_math.h"
+#include "uart.h"
+
 
 #define MAX_PEAKS 5      
 #define MIN_DELAY -1 //in s
 #define MAX_DELAY 1 //in s
+
+extern uart_t USART;
 
 
 //Interne Var
@@ -125,5 +130,8 @@ void Filter_Init(Filter_instance * filter, EEPROM_Filter_OBJ * e_data){
 
  __attribute__((always_inline)) inline void packed_complex_multiplication(float * pSrcA, float * pSrcB,float * pDst, uint32_t numSamples)
 {
+  //arm_cmplx_mult_cmplx_f32(pSrcA+2, pSrcB+2, pDst+2, numSamples-1);
+  //pDst[0]= pSrcA[0]*pSrcB[0];
+  //pDst[1]= pSrcA[1]*pSrcB[1];
   arm_cmplx_mult_cmplx_f32(pSrcA, pSrcB, pDst, numSamples);
 }

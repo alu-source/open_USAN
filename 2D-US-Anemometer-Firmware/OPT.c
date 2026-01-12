@@ -25,6 +25,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include "OPT.h"
 #include "main.h"
 #include "stdlib.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_flash.h"
 
 

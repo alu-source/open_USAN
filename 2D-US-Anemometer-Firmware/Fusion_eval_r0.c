@@ -21,24 +21,40 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "arm_math.h"
 #include "stdlib.h"
 #include "main.h"
 #include "Filter_Fusion_r0.h"
+#include "Matched_Filter_r0.h"
 #include "stdlib.h"
 #include "Sensor_config.h"
+#include "stdio.h"
+#include "uart.h"
 #include "correction.h"
 
 
 #define W 0.005
 #define F_a_ref 0.001
 
+//float c1n = 1.06, c1p = 1.09, c2n = 1.13, c2p = 1.13;
 
 uint8_t Fusion_eval_r0(Fusion_return_candidate * Fusion_a,Fusion_return_candidate * Fusion_b,float * a_ref, float * v);
 
 
 uint8_t Fusion_eval_init(EEPROM_Eval_OBJ * data){
+  //c1n = data->c1n;
+  //c1p = data->c1p;
+  //c2n = data->c2n;
+  //c2p = data->c2p;
   return EXIT_SUCCESS;
 }
+
+
+//Debug
+extern uart_t USART;
+
+
+
 
  __attribute__((always_inline)) inline uint8_t Fusion_eval_r0(Fusion_return_candidate * Fusion_a,Fusion_return_candidate * Fusion_b,float * a_ref, float * v){
 

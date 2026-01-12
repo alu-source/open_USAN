@@ -39,12 +39,12 @@ uint8_t EEPROM_Init();
 
 /**
   Write stuff to the EEPROM
-  in 4 Byte stepps
+  in 4 Byte stepps !!!!
 */
 uint8_t EEPROM_write_data(uint32_t virt_addr, uint32_t * data_in, uint32_t length, uint8_t erase_flag);
 
 /**
   Reads stuff from the EEPROM
-  in 4 Byte stepps
+  in 4 Byte stepps !!!!
 */
 uint8_t EEPROM_read_data(uint32_t virt_addr, uint32_t * data_out, uint32_t length);

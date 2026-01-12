@@ -25,7 +25,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include "correction.h"
 #include "math.h"
 #include "Sensor_config.h"
+#include "uart.h"
 
+
+extern uart_t USART;
 
 void correction_apply(float * v, EEPROM_Cali_OBJ * cali);
 

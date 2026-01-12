@@ -3,6 +3,7 @@
  <Bookmarks/>
  <Breakpoints groups="Breakpoints" active_group="Breakpoints">
   <BreakpointListItem trigger="Execute" line="0" counter="0" hardwareBreakpoint="" isFunctionBreakpoint="false" action="" expression="0x80064ac" stopAll="false" group="Breakpoints" type="Breakpoint" state="3" filename="../2D-US-Anemometer-Firmware" useHWbreakpoint="false"/>
+  <BreakpointListItem trigger="" line="77" counter="0" hardwareBreakpoint="" isFunctionBreakpoint="false" action="" expression="" stopAll="false" group="Breakpoints" type="Breakpoint" state="4" filename="EEPROM.c" useHWbreakpoint="false"/>
   <Exceptions set="MemManage;UsageFault_Coprocessor;UsageFault_CheckingError;UsageFault_StateError;BusFault;ExceptionEntryReturnFault;HardFault"/>
  </Breakpoints>
  <ExecutionProfileWindow/>
@@ -62,8 +63,11 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="main.c" left="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="21" y="36" useTextEdit="1" path="measurement.c" left="0" selected="1" top="36" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="57" useTextEdit="1" path="main.c" left="0" top="36" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="222" useTextEdit="1" path="Shot.c" left="0" top="195" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="22" y="29" useTextEdit="1" path="Sensor_config.h" left="0" top="16" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="32" y="405" useTextEdit="1" path="Unittest.c" left="0" top="372" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="451" useTextEdit="1" path="uart.c" left="0" selected="1" top="68" codecName="Default"/>
  </Files>
  <EMStudioWindow activeProject="2D-Anemometer-Firmware_r0" fileDialogDefaultFilter="*.c" autoConnectTarget="ST-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="Driver/adc.c&#xa;&#xa;Driver/gpio.c&#xa;&#xa;Driver/timer.c&#xa;" fileDialogInitialDirectory="A:/Documente/Uni/Praxisprojekt/SVN_2/NavSys/Anemometer/2D-US-Anemometer-Firmware/STM32F4xx_HAL_Driver/Src" debugSearchPath="" autoConnectCapabilities="3455"/>
 </session>

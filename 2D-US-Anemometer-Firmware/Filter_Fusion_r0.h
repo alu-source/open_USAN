@@ -22,8 +22,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma  once
+#include "arm_math.h"
+#include "stdlib.h"
 #include "main.h"
 #include "Matched_Filter_r0.h"
+
+//typedef struct{
+//  float l_corr_a, l_corr_b, l_corr_c;
+//  float t_0;
+//}Filter_fusion_init_data;
 
 
 typedef struct {

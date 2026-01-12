@@ -23,7 +23,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 */
 #pragma once
 
+#include "arm_math.h"
 #include "main.h"
+#include "Algo_helper.h"
 #include "Unittest.h"
 
 #define ALGO_BUFFER_SIZE 512 //Must be of power of 2
@@ -39,8 +41,10 @@ typedef struct{
   uint16_t DMA_buffer_offset;
   uint8_t n_candidates; 
   float null_delay;
-  float Filter_match[ALGO_BUFFER_SIZE]; 
+  float Filter_match[ALGO_BUFFER_SIZE];  //Maybe rm raw so just FFT match is stored, build a match build fnc
   float Filter_match_raw[ALGO_BUFFER_SIZE];
+  float Calibration_data[2]; //for Lin. komp
+  uint32_t * Args;
 }Filter_instance;
 
 
@@ -53,4 +57,4 @@ void Filter_Init(Filter_instance * filter, EEPROM_Filter_OBJ * e_data);
 /**
   Runs one instance of the Matchedfilter !!!
 */
-uint8_t Filter_run_r0(Filter_return_data * data, Filter_instance * filter, uint16_t *raw_data)__attribute__ ((optimize(3)));
+uint8_t Filter_run_r0(Filter_return_data * data, Filter_instance * filter, uint16_t *raw_data);

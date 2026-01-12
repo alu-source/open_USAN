@@ -67,6 +67,18 @@ typedef struct{
 
 
 
+
+/**
+  Does a small test, a kind of Init too 
+*/
+uint8_t unit_test_fast(void);
+
+/**
+  Does a Full test of each Komponent
+  meant to run once or to falidate Sensor
+*/
+uint8_t unit_test_full(void);
+
 /**
   Startup of the sensor
 */

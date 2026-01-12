@@ -21,19 +21,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "arm_math.h"
 #include "main.h"
 #include "Algo_helper.h"
 #include "Shot.h"
 #include "Matched_Filter_r0.h"
-#include "arm_math.h"
 
 
-void helper_Init();
+void helper_Init(void);
 float helper_interpolate_Peak(float *data, peak_data_struct * max_index);
 void helper_get_Peaks(peak_data_struct* Peak_list, uint8_t n_peak, float* data);
 int16_t helper_linear_to_circular_index(uint16_t index);
 uint16_t helper_circular_to_linear_index(int16_t index);
-void min_k_f32(float * input, uint8_t input_size, uint8_t k, uint8_t * idx, float * val);
+
 
 //Matrix def for interpolation
 float pA[21] = {9,-3,1,4,-2,1,1,-1,1,0,0,1,1,1,1,4,2,1,9,3,1};
@@ -48,7 +48,7 @@ float pAusg[21];
 arm_matrix_instance_f32 Ausg = {3, 7,pAusg};
 float pb[7];
 arm_matrix_instance_f32 b = {7, 1,pb};
-float pabc[7];
+float pabc[3];
 arm_matrix_instance_f32 abc = {3, 1,pabc};
 
 
@@ -65,7 +65,7 @@ void helper_Init(void){
 
   //Filling b Vector with Peak data 
   for(int8_t i = 0; i < 7; i++){
-    pb[i] = data[helper_circular_to_linear_index(max_index->cir_index + i -3)];
+    pb[i] = data[helper_circular_to_linear_index(max_index->cir_index + i - 3)];
   }
   //Calc Interp Peak as Float index 
   arm_mat_mult_f32(&Ausg, &b, &abc);      

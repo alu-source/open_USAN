@@ -24,8 +24,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #pragma once
 
 #include "main.h"
+#include "stdlib.h" 
+#include "gpio.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_dma.h"
 #include "stm32f4xx_hal_adc.h"
 #include "Sensor_config.h"
+#include <math.h>
 
 #define SHOT_KEY_LENGTH 12
 #define SHOT_DMA_CYCLES_PER_PERIODE 20
@@ -87,7 +92,7 @@ uint8_t Shot_Init(Transceiver_handle* handle);
 */
 uint8_t Shot_generate_gpio_from_Key(uint8_t *KEY, Transceiver_handle *handle);
 
-//Alternativ ways to generate the KEY, sometimes very interesting results, not all bug free
+//Alternativ ways to generate the KEY, sometimes very interesting results
 uint8_t Shot_generate_gpio_from_Key_2(uint8_t *KEY, Transceiver_handle *handle);
 uint8_t Shot_generate_gpio_from_Key_3(uint8_t *KEY, Transceiver_handle *handle);
 uint8_t Shot_generate_gpio_from_Key_4(uint8_t *KEY, Transceiver_handle *handle);

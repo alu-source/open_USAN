@@ -206,7 +206,7 @@ static void uart_enable_dma(uart_instance_t uart_instance)
   hdma_tx->Init.Mode = DMA_NORMAL;
   hdma_tx->Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
   hdma_tx->Init.PeriphInc = DMA_PINC_DISABLE;
-  hdma_tx->Init.Priority = DMA_PRIORITY_MEDIUM;
+  hdma_tx->Init.Priority = DMA_PRIORITY_LOW;
   
   HAL_DMA_Init(hdma_tx);
   huart->hdmatx = hdma_tx;
@@ -221,7 +221,7 @@ static void uart_enable_dma(uart_instance_t uart_instance)
   hdma_rx->Init.Mode = DMA_CIRCULAR;
   hdma_rx->Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
   hdma_rx->Init.PeriphInc = DMA_PINC_DISABLE;
-  hdma_rx->Init.Priority = DMA_PRIORITY_HIGH;
+  hdma_rx->Init.Priority = DMA_PRIORITY_MEDIUM;
   
   HAL_DMA_Init(hdma_rx);
   huart->hdmarx = hdma_rx;

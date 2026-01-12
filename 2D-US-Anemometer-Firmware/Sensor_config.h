@@ -48,3 +48,5 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #define SWAP_AXIS false // Swaps the X and Y outputs of the sensor
 #define INVERT_X false // Invert X-axis
 #define INVERT_Y true // Invert Y-axis
+
+//#define PYTHON_INTERFACE  1

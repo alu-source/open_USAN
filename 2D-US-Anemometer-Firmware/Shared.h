@@ -22,6 +22,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "main.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx.h"
+
 
 /**
   Collection of Random functions

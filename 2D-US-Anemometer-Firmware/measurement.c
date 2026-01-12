@@ -1,76 +1,71 @@
 /*
 Copyright 2025 Till Weise
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
 
 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ this list of conditions and the following disclaimer in the documentation and/or other materials provided with the
+distribution.
 
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
  derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "DAC_AD5732.h"
-#include "Shot.h"
-#include "Shared.h"
 #include "measurement.h"
+#include "DAC_AD5732.h"
 #include "Filter_Fusion_r0.h"
-#include "Matched_Filter_r0.h"
 #include "Fusion_eval_r0.h"
-#include "correction.h"
-#include "uart.h"
-#include "Unittest.h"
-#include <stdio.h>
+#include "Matched_Filter_r0.h"
+#include "Packed_transfer.h"
 #include "Sensor_config.h"
+#include "Shared.h"
+#include "Shot.h"
+#include "Unittest.h"
+#include "correction.h"
 #include "debug.h"
-#include "arm_math.h"
+#include "uart.h"
+#include <stdio.h>
 
-#define START_END_TIME 700 //in us
-#define TIMING_ERROR_MARGINE 0 //in us
-#define LOOP_TIME 0 // in us
-#define MIN_MEAS_TIME 1e6 / (4 * SUB_MEASUREMENT_FREQ)  //in us
-#define TRIGGER_TIMOUT_MARGINE 1000 // in us
+#define START_END_TIME 700                                // in us
+#define TIMING_ERROR_MARGINE 0                            // in us
+#define LOOP_TIME 0                                       // in us
+#define MIN_MEAS_TIME 1e6 / (4 * SUB_MEASUREMENT_FREQ)    // in us
+#define TRIGGER_TIMOUT_MARGINE 1000                       // in us
 
+void measurement_US(float* vel);
 
+void measurement_init(EEPROM_Meas_OBJ* meas_data);
 
-void measurement_US(float * vel);
+void measurement_US_interleafe(float* vel);
 
-void measurement_init(EEPROM_Meas_OBJ * meas_data);
+void measurement_null(EEPROM_Filter_OBJ* filter_data);
 
-void measurement_US_interleafe(float * vel);
-
-void measurement_null (EEPROM_Filter_OBJ * filter_data);
-
-
-
-
-//Externe Var
-extern Transceiver_handle shot_handle[4]; //Unit_test
-extern Shot_data_struct shot_data[4]; //Unit test
-extern TIM_HandleTypeDef htim2; //shared
+// Externe Var
+extern Transceiver_handle shot_handle[4];    // Unit_test
+extern Shot_data_struct shot_data[4];        // Unit test
+extern TIM_HandleTypeDef htim2;              // shared
 extern uart_t USART;
 extern uint8_t TRIGGER_EVENT_FLAG;
 extern uint8_t TRIGGER_MODE_FLAG;
-extern EEPROM_OBJ EEPROM_data; 
+extern EEPROM_OBJ EEPROM_data;
 
-
-//Interne Var
+// Interne Var
 uint8_t startup_FLAG = 0;
-uint32_t time_stepp = 0;
-uint32_t next_time = 0;
+uint32_t time_stepp  = 0;
+uint32_t next_time   = 0;
 uint16_t dummy[512];
-float a_ref = 345;
+float a_ref                    = 345;
 uint32_t trigger_timeout_value = 0xFFFFFFFF;
 
 Filter_return_data Filter_ret_a[5] __attribute__((section(".CCM_VAR")));
@@ -82,94 +77,91 @@ Fusion_return_candidate Fusion_ret_y[3] __attribute__((section(".CCM_VAR")));
 
 Filter_instance Filter_inst[4] __attribute__((section(".CCM_VAR")));
 
-uint16_t sub_meas = 0;
+uint16_t sub_meas        = 0;
 uint32_t clock_increment = 0;
-float total_time = 0;
+float total_time         = 0;
+
 float vel_buffer[2][600];
 
 /*
   Functions
 */
-void measurement_US_calibration(float * vel, uint16_t sub_meas, float max_error, uint8_t timing);
-void measurement_init(EEPROM_Meas_OBJ * meas_data);
+void measurement_US_calibration(float* vel, uint16_t sub_meas, float max_error, uint8_t timing);
+void measurement_init(EEPROM_Meas_OBJ* meas_data);
 void measurement_US(float* vel);
-void measurement_null (EEPROM_Filter_OBJ * filter_data);
+void measurement_null(EEPROM_Filter_OBJ* filter_data);
 void measurement_US_interleaved(float* vel);
-void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, float * std);
+void measurement_US_interleaved_PPR(uint8_t n_meas, float* vel, float* score, float* std);
 
-void measurement_init(EEPROM_Meas_OBJ * meas_data){
+void measurement_init(EEPROM_Meas_OBJ* meas_data) {
   a_ref = meas_data->a_ref;
 
-  if(meas_data->freq != 0){
-      TRIGGER_MODE_FLAG = 1;
+  if (meas_data->freq != 0) {
+    TRIGGER_MODE_FLAG = 1;
     if (meas_data->duty > 1) {
       // Total time between trigger events - the time bevore start and ending
-        total_time            = (1.0 / meas_data->freq) * 1e6 - CLOCK_MARGINE;                             // in us
-        trigger_timeout_value = total_time + TRIGGER_TIMOUT_MARGINE;                                       // Used to detect missing trigger
-        sub_meas              = (uint16_t)floorf((total_time * meas_data->duty/100)/(4*MIN_MEAS_TIME));    // number off sub measurementa
-        time_stepp            = MIN_MEAS_TIME;
-    } 
-    else {
+      total_time            = (1.0 / meas_data->freq) * 1e6 - CLOCK_MARGINE;    // in us
+      trigger_timeout_value = total_time + TRIGGER_TIMOUT_MARGINE;              // Used to detect missing trigger
+      sub_meas              = (uint16_t)floorf((total_time * meas_data->duty / 100) /
+                                  (4 * MIN_MEAS_TIME));            // number off sub measurementa
+      time_stepp            = MIN_MEAS_TIME;
+    } else {
       time_stepp = MIN_MEAS_TIME;
       sub_meas   = 2;
-      total_time = START_END_TIME  +MIN_MEAS_TIME*4 + 1;
+      total_time = START_END_TIME + MIN_MEAS_TIME * 4 + 1;
     }
-  }else{
+  } else {
     // Total time between trigger events - the time bevore start and ending
-    TRIGGER_MODE_FLAG = 0;                                                   // No trigger
-    if(meas_data->duty <= 100){
-          total_time            = (1.0 / meas_data->duty) * 1e6  - CLOCK_MARGINE;       
-          sub_meas              = (uint16_t)floorf((total_time)/(4*MIN_MEAS_TIME));
-          time_stepp            = MIN_MEAS_TIME;
-        }
-    else{
-      sub_meas          = 5;                                                 // Default num of sub meas
+    TRIGGER_MODE_FLAG = 0;    // No trigger
+    if (meas_data->duty <= 100) {
+      total_time = (1.0 / meas_data->duty) * 1e6 - CLOCK_MARGINE;
+      sub_meas   = (uint16_t)floorf((total_time) / (4 * MIN_MEAS_TIME));
+      time_stepp = MIN_MEAS_TIME;
+    } else {
+      sub_meas = 5;    // Default num of sub meas
     }
 
-    time_stepp        = MIN_MEAS_TIME;
-    total_time        = (sub_meas*time_stepp*4);
-
+    time_stepp = MIN_MEAS_TIME;
+    total_time = (sub_meas * time_stepp * 4);
   }
 
-  //Print
+  // Print
   char txt_buffer[100];
-  uint8_t length = sprintf(txt_buffer,"Meas setup:\n");
-  uart_transmit(&USART,txt_buffer,length);
+  uint8_t length = sprintf(txt_buffer, "Meas setup:\n");
+  uart_transmit(&USART, txt_buffer, length);
 
-
-  if(meas_data->freq != 0){
+  if (meas_data->freq != 0) {
     // Requested
-    length = sprintf(txt_buffer,"Requested:\n");
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Trigger Freq -> %d\n",meas_data->freq);
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Duty -> %d\n\n",meas_data->duty);
-    uart_transmit(&USART,txt_buffer,length);
+    length = sprintf(txt_buffer, "Requested:\n");
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Trigger Freq -> %d\n", meas_data->freq);
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Duty -> %d\n\n", meas_data->duty);
+    uart_transmit(&USART, txt_buffer, length);
 
-    //Actual
-    length = sprintf(txt_buffer,"Actual:\n");
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Sub measurements -> %d\n",sub_meas);
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Resulting dutycycle -> %f %%\n",((sub_meas*time_stepp*4)/total_time) * 100);
-    uart_transmit(&USART,txt_buffer,length);
-  }
-  else{
+    // Actual
+    length = sprintf(txt_buffer, "Actual:\n");
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Sub measurements -> %d\n", sub_meas);
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Resulting dutycycle -> %f %%\n", ((sub_meas * time_stepp * 4) / total_time) * 100);
+    uart_transmit(&USART, txt_buffer, length);
+  } else {
     // Requested
-    length = sprintf(txt_buffer,"Requested:\n");
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Measurement Freq -> %d\n",meas_data->duty);
-    uart_transmit(&USART,txt_buffer,length);
+    length = sprintf(txt_buffer, "Requested:\n");
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Measurement Freq -> %d\n", meas_data->duty);
+    uart_transmit(&USART, txt_buffer, length);
 
-    length = sprintf(txt_buffer,"Actual:\n");
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Number of sub measurements -> %d\n\n",200/sub_meas);
-    uart_transmit(&USART,txt_buffer,length);
-    length = sprintf(txt_buffer,"Number of sub measurements -> %d\n\n",sub_meas);
-    uart_transmit(&USART,txt_buffer,length);
+    length = sprintf(txt_buffer, "Actual:\n");
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Number of sub measurements -> %d\n\n", 200 / sub_meas);
+    uart_transmit(&USART, txt_buffer, length);
+    length = sprintf(txt_buffer, "Number of sub measurements -> %d\n\n", sub_meas);
+    uart_transmit(&USART, txt_buffer, length);
   }
 
-  //Init of the DSP components ! 
+  // Init of the DSP components !
   Filter_Init(Filter_inst, EEPROM_data.E_Filter);
   Filter_Fusion_init(&EEPROM_data.E_Fusion);
   Fusion_eval_init(&EEPROM_data.E_Eval);
@@ -230,81 +222,80 @@ void measurement_US(float* vel) {
 
 float match_buffer[512];
 
-void measurement_null (EEPROM_Filter_OBJ * filter_data){
-  
-  //ZERO_MEAS_SAMPLES Samples
-  for(uint8_t i = 0; i < 4; i++){
-    for(uint16_t j = 0; j < 512; j++){
+void measurement_null(EEPROM_Filter_OBJ* filter_data) {
+  // ZERO_MEAS_SAMPLES Samples
+  for (uint8_t i = 0; i < 4; i++) {
+    for (uint16_t j = 0; j < 512; j++) {
       match_buffer[j] = 0;
     }
-  
-    for(uint8_t j = 0; j < ZERO_MEAS_SAMPLES; j++){
+
+    for (uint8_t j = 0; j < ZERO_MEAS_SAMPLES; j++) {
       HAL_Delay(2);
-      Shot_fire(&shot_handle[i],&shot_data[i]);
+      Shot_fire(&shot_handle[i], &shot_data[i]);
       HAL_Delay(3);
       Shot_unlock_data(&shot_data[i]);
-      for (uint16_t g = 0; g < ALGO_BUFFER_SIZE; g++){
-        match_buffer[g] += (float)shot_data[i].data[g+ADC_OFFSET];
+      for (uint16_t g = 0; g < ALGO_BUFFER_SIZE; g++) {
+        match_buffer[g] += (float)shot_data[i].data[g + ADC_OFFSET];
       }
     }
-    for(uint16_t j = 0; j < ALGO_BUFFER_SIZE; j++){
-      filter_data[i].match_raw[j] = (float)match_buffer[j]/(float)ZERO_MEAS_SAMPLES;
+    for (uint16_t j = 0; j < ALGO_BUFFER_SIZE; j++) {
+      filter_data[i].match_raw[j] = (float)match_buffer[j] / (float)ZERO_MEAS_SAMPLES;
     }
 
-    //Check if average is ok !
-    double sum[4] = {0,0,0,0};
-    for(uint8_t i = 0; i < 4; i++){
-      for(uint16_t j = 0; j < ALGO_BUFFER_SIZE; j++){
+    // Check if average is ok !
+    double sum[4] = {0, 0, 0, 0};
+    for (uint8_t i = 0; i < 4; i++) {
+      for (uint16_t j = 0; j < ALGO_BUFFER_SIZE; j++) {
         sum[i] += filter_data[i].match_raw[j];
       }
-      if(sum[i]/(ALGO_BUFFER_SIZE) > 3600 || sum[i]/(ALGO_BUFFER_SIZE) < 500){
-          char txt_buffer[75];
-          uint8_t len = sprintf(txt_buffer, "Error creating zero measurement !\n\r");
-          uart_transmit(&USART, txt_buffer, len);
-          filter_data[i].match_raw[0] = 0xFFFF;
+      if (sum[i] / (ALGO_BUFFER_SIZE) > 3600 || sum[i] / (ALGO_BUFFER_SIZE) < 500) {
+        char txt_buffer[75];
+        uint8_t len = sprintf(txt_buffer, "Error creating zero measurement !\n\r");
+        uart_transmit(&USART, txt_buffer, len);
+        filter_data[i].match_raw[0] = 0xFFFF;
       }
     }
-
-
   }
 
-  //Testing the Match 
+  // Testing the Match
   Filter_Init(Filter_inst, filter_data);
   Filter_Fusion_init(&EEPROM_data.E_Fusion);
 
-
- #ifdef  KEY_TEST
- #else
+#ifdef KEY_TEST
+#else
   float h1[2];
-  double sum[2] = {0,0};
+  double sum[2] = {0, 0};
 
   EEPROM_data.E_Meas.v_of[0] = 0;
   EEPROM_data.E_Meas.v_of[1] = 0;
-  for(uint16_t i = 0; i < ZERO_MEAS_SAMPLES*10; i++){
+  for (uint16_t i = 0; i < ZERO_MEAS_SAMPLES * 10; i++) {
     measurement_US_calibration(h1, 5, MEASUREMENT_INTER_ERROR_CALIBRATION, ADAPTIV_TIMING);
   }
 
-  for(uint8_t i = 0; i < ZERO_MEAS_SAMPLES; i++){
+  for (uint8_t i = 0; i < ZERO_MEAS_SAMPLES; i++) {
     measurement_US_calibration(h1, 5, MEASUREMENT_INTER_ERROR_CALIBRATION, ADAPTIV_TIMING);
     vel_buffer[0][i + 5] = h1[0];
     vel_buffer[1][i + 5] = h1[1];
   }
 
-  for(uint8_t i = 0; i < ZERO_MEAS_SAMPLES; i++){
+  for (uint8_t i = 0; i < ZERO_MEAS_SAMPLES; i++) {
     sum[0] += (double)vel_buffer[0][i + 5];
-    sum[1] += (double)vel_buffer[1][i + 5]; 
+    sum[1] += (double)vel_buffer[1][i + 5];
   }
 
-  EEPROM_data.E_Meas.v_of[0] = sum[0]/(float)ZERO_MEAS_SAMPLES;
-  EEPROM_data.E_Meas.v_of[1] = sum[1]/(float)ZERO_MEAS_SAMPLES;
+  EEPROM_data.E_Meas.v_of[0] = sum[0] / (float)ZERO_MEAS_SAMPLES;
+  EEPROM_data.E_Meas.v_of[1] = sum[1] / (float)ZERO_MEAS_SAMPLES;
 #endif
 }
 
-
+// DEBUG
+uint8_t timing_idx = 0;
+uint32_t timing_buffer[200];
 
 void measurement_US_interleaved(float* vel) {
-  time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + sub_meas/8.0)/(4.0 * sub_meas));
-  
+  time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + sub_meas / 8.0) / (4.0 * sub_meas));
+
+  // DEBUG
   HAL_NVIC_DisableIRQ(SysTick_IRQn);
 
   // Start the measurement
@@ -402,7 +393,6 @@ void measurement_US_interleaved(float* vel) {
   Shot_unlock_data(&shot_data[3]);
   Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
 
-
   // Filter Fusion for y dir
   Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
 
@@ -430,14 +420,14 @@ void measurement_US_interleaved(float* vel) {
   vel[0] = (sum0 / diff);
   vel[1] = (sum1 / diff);
 
-
   // Diff filter, sort out val with to big diff to mean -> probably error val
   diff = sub_meas;
   sum0 = 0;
   sum1 = 0;
 
   for (uint16_t i = 0; i < sub_meas; i++) {
-    if (fabsf(vel_buffer[0][i] - vel[0]) < MEASUREMENT_INTER_ERROR || fabsf(vel_buffer[1][i] - vel[1]) < MEASUREMENT_INTER_ERROR) {
+    if (fabsf(vel_buffer[0][i] - vel[0]) < MEASUREMENT_INTER_ERROR ||
+        fabsf(vel_buffer[1][i] - vel[1]) < MEASUREMENT_INTER_ERROR) {
       sum0 += vel_buffer[0][i];
       sum1 += vel_buffer[1][i];
     } else {
@@ -448,63 +438,132 @@ void measurement_US_interleaved(float* vel) {
   vel[0] = (sum0 / diff) - EEPROM_data.E_Meas.v_of[0];
   vel[1] = (sum1 / diff) - EEPROM_data.E_Meas.v_of[1];
 
-  // Correction
-  correction_apply(vel, &EEPROM_data.E_Cali);
+// Correction
+// DEBUG
+// correction_apply(vel, &EEPROM_data.E_Cali);
 
-  // Flipping and inverting axis as needed
-  #if SWAP_AXIS == true
-    float h1 = vel[0];
-    vel[0] = vel[1];
-    vel[1] = h1;
-  #endif
+// Flipping and inverting axis as needed
+#if SWAP_AXIS == true
+  float h1 = vel[0];
+  vel[0]   = vel[1];
+  vel[1]   = h1;
+#endif
 
-  #if INVERT_X == true
-    vel[0] = -vel[0];
-  #endif
+#if INVERT_X == true
+  vel[0] = -vel[0];
+#endif
 
-  #if INVERT_Y == true
-    vel[1] = -vel[1];
-  #endif
+#if INVERT_Y == true
+  vel[1] = -vel[1];
+#endif
 
+  // DEBUG
   HAL_NVIC_EnableIRQ(SysTick_IRQn);
+
+  // DEBUG
+  /*
+  timing_buffer[timing_idx] = __HAL_TIM_GET_COUNTER(&htim2);
+  timing_idx++;
+  if(timing_idx == 200){
+    uint64_t sum = 0;
+    uint32_t max = 0;
+    for(uint8_t i = 0; i<200; i ++){
+      sum += timing_buffer[i];
+      if(timing_buffer[i] > max){
+        max = timing_buffer[i];
+      }
+    }
+    char txt_buffer[200];
+    //uint8_t length = sprintf(txt_buffer,"Time target \n", (uint32_t)sum/200, max);
+    //uart_transmit(&USART,txt_buffer,length);
+    uint8_t length = sprintf(txt_buffer,"Mean time: %d and max %d\n", (uint32_t)sum/200, max);
+    uart_transmit(&USART,txt_buffer,length);
+    timing_idx = 0;
+  }
+  */
 }
 
-void measurement_US_calibration(float * vel, uint16_t n_sub_meas, float max_error, uint8_t timing){
+void measurement_US_calibration(float* vel, uint16_t n_sub_meas, float max_error, uint8_t timing) {
+  // Switches timing modes
+  if (timing == ADAPTIV_TIMING) {
+    time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas / 8.0) / (4.0 * n_sub_meas));
+  } else if (timing == LAGACY_ADAPTIV_TIMING) {
+    time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas * 4.0) / (4.0 * n_sub_meas));
+  } else {
+    time_stepp = MIN_MEAS_TIME;
+  }
 
-// Switches timing modes
-if(timing == ADAPTIV_TIMING){
-  time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas/8.0)/(4.0 * n_sub_meas));
-}else if (timing == LAGACY_ADAPTIV_TIMING) {
- time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas*4.0)/(4.0 * n_sub_meas));
-}
-else{
-  time_stepp = MIN_MEAS_TIME;
-}
+  // Start the measurement
+  __HAL_TIM_SET_COUNTER(&htim2, 0);
+  next_time = time_stepp;
 
-//Start the measurement
-__HAL_TIM_SET_COUNTER(&htim2, 0);
-next_time = time_stepp;
+  // Shot 1
+  Shot_fire(&shot_handle[0], &shot_data[0]);
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
 
-//Shot 1
-Shot_fire(&shot_handle[0],&shot_data[0]);
-while(__HAL_TIM_GET_COUNTER(&htim2) < next_time);
+  for (uint16_t i = 0; i < n_sub_meas - 1; i++) {
+    // Shot 2
+    Shot_unlock_data(&shot_data[0]);
+    Shot_fire(&shot_handle[1], &shot_data[1]);
 
-for (uint16_t i = 0; i < n_sub_meas-1; i++) {
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
+    if (i > 0) {
+      // Complete prev measurment
+      Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+      // Save result in to buffer
+      vel_buffer[0][i - 1] = vel[0];
+      vel_buffer[1][i - 1] = vel[1];
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 3
+    Shot_unlock_data(&shot_data[1]);
+    Shot_fire(&shot_handle[2], &shot_data[2]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 4
+    Shot_unlock_data(&shot_data[2]);
+    Shot_fire(&shot_handle[3], &shot_data[3]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
+
+    // Filter Fusion for x dir
+    Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 1
+    Shot_unlock_data(&shot_data[3]);
+    Shot_fire(&shot_handle[0], &shot_data[0]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
+
+    // Filter Fusion for y dir
+    Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+  }
   // Shot 2
   Shot_unlock_data(&shot_data[0]);
   Shot_fire(&shot_handle[1], &shot_data[1]);
   next_time += time_stepp;
   Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
-  if(i > 0){
-    //Complete prev measurment 
-    Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
 
-    //Save result in to buffer
-    vel_buffer[0][i-1] = vel[0];
-    vel_buffer[1][i-1] = vel[1];
-    
-  }
+  Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
 
+  vel_buffer[0][n_sub_meas - 2] = vel[0];
+  vel_buffer[1][n_sub_meas - 2] = vel[1];
 
   while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
     ;
@@ -514,7 +573,6 @@ for (uint16_t i = 0; i < n_sub_meas-1; i++) {
   Shot_fire(&shot_handle[2], &shot_data[2]);
   next_time += time_stepp;
   Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
-
   while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
     ;
 
@@ -530,109 +588,55 @@ for (uint16_t i = 0; i < n_sub_meas-1; i++) {
   while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
     ;
 
-  // Shot 1
   Shot_unlock_data(&shot_data[3]);
-  Shot_fire(&shot_handle[0], &shot_data[0]);
-  next_time += time_stepp;
   Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
 
   // Filter Fusion for y dir
   Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
 
-  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
-  ;
-}
-// Shot 2
-Shot_unlock_data(&shot_data[0]);
-Shot_fire(&shot_handle[1], &shot_data[1]);
-next_time += time_stepp;
-Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
+  // Fusion eval
+  Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
 
-Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+  vel_buffer[0][n_sub_meas - 1] = vel[0];
+  vel_buffer[1][n_sub_meas - 1] = vel[1];
 
-vel_buffer[0][n_sub_meas - 2] = vel[0];
-vel_buffer[1][n_sub_meas - 2] = vel[1];
+  // Mean filter with error detection
+  double sum0 = 0, sum1 = 0;
+  uint16_t diff = n_sub_meas;
 
-while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
-  ;
-
-// Shot 3
-Shot_unlock_data(&shot_data[1]);
-Shot_fire(&shot_handle[2], &shot_data[2]);
-next_time += time_stepp;
-Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
-while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
-  ;
-
-// Shot 4
-Shot_unlock_data(&shot_data[2]);
-Shot_fire(&shot_handle[3], &shot_data[3]);
-next_time += time_stepp;
-Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
-
-// Filter Fusion for x dir
-Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
-
-while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
-  ;
-
-Shot_unlock_data(&shot_data[3]);
-Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
-
-// Filter Fusion for y dir
-Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
-
-// Fusion eval
-Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
-
-vel_buffer[0][n_sub_meas - 1] = vel[0];
-vel_buffer[1][n_sub_meas - 1] = vel[1];
-
-
-//Mean filter with error detection
-double sum0 = 0, sum1 = 0;
-uint16_t diff = n_sub_meas;
-
-for(uint16_t i = 0; i < n_sub_meas; i++){
-  if(vel_buffer[0][i] < 9999 && vel_buffer[1][i] < 9999){
-    sum0 += vel_buffer[0][i];
-    sum1 += vel_buffer[1][i];
+  for (uint16_t i = 0; i < n_sub_meas; i++) {
+    if (vel_buffer[0][i] < 9999 && vel_buffer[1][i] < 9999) {
+      sum0 += vel_buffer[0][i];
+      sum1 += vel_buffer[1][i];
+    } else {
+      diff--;
+    }
   }
-  else {
-   diff--;
+
+  vel[0] = (sum0 / diff);
+  vel[1] = (sum1 / diff);
+
+  // Diff filter
+  diff = n_sub_meas;
+  sum0 = 0;
+  sum1 = 0;
+
+  for (uint16_t i = 0; i < n_sub_meas; i++) {
+    if (fabsf(vel_buffer[0][i] - vel[0]) < max_error || fabsf(vel_buffer[1][i] - vel[1]) < max_error) {
+      sum0 += vel_buffer[0][i];
+      sum1 += vel_buffer[1][i];
+    } else {
+      diff--;
+    }
   }
+
+  vel[0] = (sum0 / diff) - EEPROM_data.E_Meas.v_of[0];
+  vel[1] = (sum1 / diff) - EEPROM_data.E_Meas.v_of[1];
 }
-
-
-vel[0] = (sum0/diff);
-vel[1] = (sum1/diff);
-
-//Diff filter
-diff = n_sub_meas;
-sum0 = 0;
-sum1 = 0;
-
-for(uint16_t i = 0; i < n_sub_meas; i++){
-  if(fabsf(vel_buffer[0][i] - vel[0]) < max_error || fabsf(vel_buffer[1][i] - vel[1]) < max_error){
-    sum0 += vel_buffer[0][i];
-    sum1 += vel_buffer[1][i];
-  }
-  else {
-   diff--;
-  }
-}
-
-vel[0] = (sum0/diff) - EEPROM_data.E_Meas.v_of[0];
-vel[1] = (sum1/diff) - EEPROM_data.E_Meas.v_of[1];
-}
-
-
-
-
 
 float score_buffer[2][600];
 
-void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, float * std) {
+void measurement_US_interleaved_PPR(uint8_t n_meas, float* vel, float* score, float* std) {
   time_stepp = MIN_MEAS_TIME;    // 900;//1250;//900;//690;
   sub_meas   = n_meas;
 
@@ -653,13 +657,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
     next_time += time_stepp;
     Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
 
-    //Save smallest Peak score value in buffer
-    if (Filter_ret_a[1].score < Filter_ret_a[3].score){
+    // Save smallest Peak score value in buffer
+    if (Filter_ret_a[1].score < Filter_ret_a[3].score) {
       score_buffer[0][i] = Filter_ret_a[1].score;
-    }else {
+    } else {
       score_buffer[0][i] = Filter_ret_a[3].score;
-     }
-
+    }
 
     if (i > 0) {
       Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
@@ -677,6 +680,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
     next_time += time_stepp;
     Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
 
+    // Save smallest Peak score value in buffer
+    // if (Filter_ret_c[1].score < Filter_ret_c[3].score){
+    //   score_buffer[1][i] = Filter_ret_c[1].score;
+    // }else {
+    //   score_buffer[1][i] = Filter_ret_c[3].score;
+    //  }
     score_buffer[1][i] = 0;
 
     while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
@@ -688,12 +697,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
     next_time += time_stepp;
     Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
 
-    //Save smallest Peak score value in buffer
-    if (Filter_ret_b[1].score < score_buffer[0][i]){
+    // Save smallest Peak score value in buffer
+    if (Filter_ret_b[1].score < score_buffer[0][i]) {
       score_buffer[0][i] = Filter_ret_b[1].score;
-    }else if (Filter_ret_b[3].score < score_buffer[0][i]){
+    } else if (Filter_ret_b[3].score < score_buffer[0][i]) {
       score_buffer[0][i] = Filter_ret_b[3].score;
-     }
+    }
 
     // Filter Fusion for x dir
     Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
@@ -707,12 +716,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
     next_time += time_stepp;
     Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
 
-    //Save smallest Peak score value in buffer
-    if (Filter_ret_d[1].score < score_buffer[1][i]){
+    // Save smallest Peak score value in buffer
+    if (Filter_ret_d[1].score < score_buffer[1][i]) {
       score_buffer[1][i] = Filter_ret_d[1].score;
-    }else if (Filter_ret_d[3].score < score_buffer[0][i]){
+    } else if (Filter_ret_d[3].score < score_buffer[0][i]) {
       score_buffer[1][i] = Filter_ret_d[3].score;
-     }
+    }
 
     // Filter Fusion for y dir
     Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
@@ -727,12 +736,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
   next_time += time_stepp;
   Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
 
-  //Save smallest Peak score value in buffer
-    if (Filter_ret_a[1].score < Filter_ret_a[3].score){
-      score_buffer[0][n_meas] = Filter_ret_a[1].score;
-    }else {
-      score_buffer[0][n_meas] = Filter_ret_a[3].score;
-     }
+  // Save smallest Peak score value in buffer
+  if (Filter_ret_a[1].score < Filter_ret_a[3].score) {
+    score_buffer[0][n_meas] = Filter_ret_a[1].score;
+  } else {
+    score_buffer[0][n_meas] = Filter_ret_a[3].score;
+  }
 
   Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
 
@@ -748,12 +757,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
   next_time += time_stepp;
   Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
 
-  //Save smallest Peak score value in buffer
-    if (Filter_ret_c[1].score < Filter_ret_c[3].score){
-      score_buffer[1][n_meas] = Filter_ret_c[1].score;
-    }else {
-      score_buffer[1][n_meas] = Filter_ret_c[3].score;
-     }
+  // Save smallest Peak score value in buffer
+  if (Filter_ret_c[1].score < Filter_ret_c[3].score) {
+    score_buffer[1][n_meas] = Filter_ret_c[1].score;
+  } else {
+    score_buffer[1][n_meas] = Filter_ret_c[3].score;
+  }
 
   while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
     ;
@@ -764,13 +773,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
   next_time += time_stepp;
   Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
 
-  
-  //Save smallest Peak score value in buffer
-    if (Filter_ret_b[1].score < score_buffer[0][n_meas]){
-      score_buffer[0][n_meas - 1] = Filter_ret_b[1].score;
-    }else if (Filter_ret_b[3].score < score_buffer[0][n_meas]){
-      score_buffer[0][n_meas - 1] = Filter_ret_b[3].score;
-     }
+  // Save smallest Peak score value in buffer
+  if (Filter_ret_b[1].score < score_buffer[0][n_meas]) {
+    score_buffer[0][n_meas - 1] = Filter_ret_b[1].score;
+  } else if (Filter_ret_b[3].score < score_buffer[0][n_meas]) {
+    score_buffer[0][n_meas - 1] = Filter_ret_b[3].score;
+  }
 
   // Filter Fusion for x dir
   Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
@@ -781,13 +789,12 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
   Shot_unlock_data(&shot_data[3]);
   Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
 
-      //Save smallest Peak score value in buffer
-    if (Filter_ret_d[2].score < score_buffer[1][n_meas]){
-      score_buffer[1][n_meas - 1] = Filter_ret_d[2].score;
-    }else if (Filter_ret_d[4].score < score_buffer[0][n_meas]){
-      score_buffer[1][n_meas - 1] = Filter_ret_d[4].score;
-     }
-
+  // Save smallest Peak score value in buffer
+  if (Filter_ret_d[2].score < score_buffer[1][n_meas]) {
+    score_buffer[1][n_meas - 1] = Filter_ret_d[2].score;
+  } else if (Filter_ret_d[4].score < score_buffer[0][n_meas]) {
+    score_buffer[1][n_meas - 1] = Filter_ret_d[4].score;
+  }
 
   // Filter Fusion for y dir
   Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
@@ -803,33 +810,526 @@ void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, 
   uint16_t diff = sub_meas;
 
   for (uint16_t i = 0; i < sub_meas; i++) {
-      sum0 += vel_buffer[0][i];
-      sum1 += vel_buffer[1][i];    
+    sum0 += vel_buffer[0][i];
+    sum1 += vel_buffer[1][i];
   }
 
   vel[0] = (sum0 / diff);
   vel[1] = (sum1 / diff);
 
-
   sum0 = 0;
   sum1 = 0;
   for (uint16_t i = 0; i < sub_meas; i++) {
-      sum0 += score_buffer[0][i];
-      sum1 += score_buffer[1][i];    
+    sum0 += score_buffer[0][i];
+    sum1 += score_buffer[1][i];
   }
 
   score[0] = (sum0 / diff);
   score[1] = (sum1 / diff);
 
-  
-  //Evaluate Velocity empirical standard deviation this should be small << 1
+  // Evaluate Velocity empirical standard deviation this should be small << 1
   std[0] = 0;
   std[1] = 0;
 
-    for (uint16_t i = 0; i < sub_meas; i++) {
-      std[0] += fabsf(vel_buffer[0][i] - vel[0]);
-      std[1] += fabsf(vel_buffer[1][i] - vel[1]);
+  for (uint16_t i = 0; i < sub_meas; i++) {
+    std[0] += fabsf(vel_buffer[0][i] - vel[0]);
+    std[1] += fabsf(vel_buffer[1][i] - vel[1]);
   }
-  std[0] = 1.0/(n_meas - 1) * std[0];
-  std[1] = 1.0/(n_meas - 1) * std[1]; 
+  std[0] = 1.0 / (n_meas - 1) * std[0];
+  std[1] = 1.0 / (n_meas - 1) * std[1];
 }
+
+#ifdef PYTHON_INTERFACE
+
+// Buffer
+float peak_delay_buffer[4][5][100]__attribute__((aligned(4))); 
+float peak_score_buffer[4][5][100]__attribute__((aligned(4)));
+float filter_vel_buffer[2][3][100]__attribute__((aligned(4)));
+float filter_score_buffer[2][3][100]__attribute__((aligned(4)));
+// float raw_vel_buffer[2][200]; // Is already saved
+// float cor_vel_buffer[2][200]; // Can be calulated later, but also not as interesting !
+
+void measurement_US_interleaved_py_debug(float* vel, uint16_t n_sub_meas, float max_error, uint8_t timing) {
+  // Switches timing modes
+  if (timing == ADAPTIV_TIMING) {
+    time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas / 8.0) / (4.0 * n_sub_meas));
+  } else if (timing == LAGACY_ADAPTIV_TIMING) {
+    time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas * 4.0) / (4.0 * n_sub_meas));
+  } else {
+    time_stepp = MIN_MEAS_TIME;
+  }
+
+  // Start the measurement
+  __HAL_TIM_SET_COUNTER(&htim2, 0);
+  next_time = time_stepp;
+
+  // Shot 1
+  Shot_fire(&shot_handle[0], &shot_data[0]);
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  for (uint16_t i = 0; i < n_sub_meas - 1; i++) {
+    // Shot 2
+    Shot_unlock_data(&shot_data[0]);
+    Shot_fire(&shot_handle[1], &shot_data[1]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
+    for (uint8_t k = 0; k < 5; k++) {
+      peak_delay_buffer[0][k][i] = Filter_ret_a[k].delay;
+      peak_score_buffer[0][k][i] = Filter_ret_a[k].score;
+    }
+
+    if (i > 0) {
+      // Complete prev measurment
+      Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+      // Save result in to buffer
+      vel_buffer[0][i - 1] = vel[0];
+      vel_buffer[1][i - 1] = vel[1];
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 3
+    Shot_unlock_data(&shot_data[1]);
+    Shot_fire(&shot_handle[2], &shot_data[2]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
+    for (uint8_t k = 0; k < 5; k++) {
+      peak_delay_buffer[2][k][i] = Filter_ret_c[k].delay;
+      peak_score_buffer[2][k][i] = Filter_ret_c[k].score;
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 4
+    Shot_unlock_data(&shot_data[2]);
+    Shot_fire(&shot_handle[3], &shot_data[3]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
+    for (uint8_t k = 0; k < 5; k++) {
+      peak_delay_buffer[1][k][i] = Filter_ret_b[k].delay;
+      peak_score_buffer[1][k][i] = Filter_ret_b[k].score;
+    }
+
+    // Filter Fusion for x dir
+    Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
+    for (uint8_t j = 0; j < 3; j++) {
+      filter_vel_buffer[0][j][i] = Fusion_ret_x[j].vel;
+      filter_score_buffer[0][j][i] = Fusion_ret_x[j].score;
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 1
+    Shot_unlock_data(&shot_data[3]);
+    Shot_fire(&shot_handle[0], &shot_data[0]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
+    for (uint8_t k = 0; k < 5; k++) {
+      peak_delay_buffer[3][k][i] = Filter_ret_d[k].delay;
+      peak_score_buffer[3][k][i] = Filter_ret_d[k].score;
+    }
+
+    // Filter Fusion for y dir
+    Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
+    for (uint8_t j = 0; j < 3; j++) {
+      filter_vel_buffer[1][j][i] = Fusion_ret_y[j].vel;
+      filter_score_buffer[1][j][i] = Fusion_ret_y[j].score;
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+  }
+  // Shot 2
+  Shot_unlock_data(&shot_data[0]);
+  Shot_fire(&shot_handle[1], &shot_data[1]);
+  next_time += time_stepp;
+  Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
+  for (uint8_t k = 0; k < 5; k++) {
+    peak_delay_buffer[0][k][n_sub_meas - 1] = Filter_ret_a[k].delay;
+    peak_score_buffer[0][k][n_sub_meas - 1] = Filter_ret_a[k].score;
+  }
+
+  Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+  vel_buffer[0][n_sub_meas - 2] = vel[0];
+  vel_buffer[1][n_sub_meas - 2] = vel[1];
+
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  // Shot 3
+  Shot_unlock_data(&shot_data[1]);
+  Shot_fire(&shot_handle[2], &shot_data[2]);
+  next_time += time_stepp;
+  Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
+  for (uint8_t k = 0; k < 5; k++) {
+    peak_delay_buffer[2][k][n_sub_meas - 1] = Filter_ret_c[k].delay;
+    peak_score_buffer[2][k][n_sub_meas - 1] = Filter_ret_c[k].score;
+  }
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  // Shot 4
+  Shot_unlock_data(&shot_data[2]);
+  Shot_fire(&shot_handle[3], &shot_data[3]);
+  next_time += time_stepp;
+  Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
+  for (uint8_t k = 0; k < 5; k++) {
+    peak_delay_buffer[1][k][n_sub_meas - 1] = Filter_ret_b[k].delay;
+    peak_score_buffer[1][k][n_sub_meas - 1] = Filter_ret_b[k].score;
+  }
+
+  // Filter Fusion for x dir
+  Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
+  for (uint8_t j = 0; j < 3; j++) {
+    filter_vel_buffer[0][j][n_sub_meas - 1]   = Fusion_ret_x[j].vel;
+    filter_score_buffer[0][j][n_sub_meas - 1] = Fusion_ret_x[j].score;
+  }
+
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  Shot_unlock_data(&shot_data[3]);
+  Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
+  for (uint8_t k = 0; k < 5; k++) {
+    peak_delay_buffer[3][k][n_sub_meas - 1] = Filter_ret_d[k].delay;
+    peak_score_buffer[3][k][n_sub_meas - 1] = Filter_ret_d[k].score;
+  }
+
+  // Filter Fusion for y dir
+  Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
+  for (uint8_t k = 0; k < 3; k++) {
+    filter_vel_buffer[1][k][n_sub_meas - 1]   = Fusion_ret_y[k].vel;
+    filter_score_buffer[1][k][n_sub_meas - 1] = Fusion_ret_y[k].score;
+  }
+
+  // Fusion eval
+  Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+  vel_buffer[0][n_sub_meas - 1] = vel[0];
+  vel_buffer[1][n_sub_meas - 1] = vel[1];
+
+  // Mean filter with error detection
+  double sum0 = 0, sum1 = 0;
+  uint16_t diff = n_sub_meas;
+
+  for (uint16_t i = 0; i < n_sub_meas; i++) {
+    if (vel_buffer[0][i] < 9999 && vel_buffer[1][i] < 9999) {
+      sum0 += vel_buffer[0][i];
+      sum1 += vel_buffer[1][i];
+    } else {
+      diff--;
+    }
+  }
+
+  vel[0] = (sum0 / diff);
+  vel[1] = (sum1 / diff);
+
+  // Diff filter
+  diff = n_sub_meas;
+  sum0 = 0;
+  sum1 = 0;
+
+  for (uint16_t i = 0; i < n_sub_meas; i++) {
+    if (fabsf(vel_buffer[0][i] - vel[0]) < max_error || fabsf(vel_buffer[1][i] - vel[1]) < max_error) {
+      sum0 += vel_buffer[0][i];
+      sum1 += vel_buffer[1][i];
+    } else {
+      diff--;
+    }
+  }
+
+  vel[0] = (sum0 / diff) - EEPROM_data.E_Meas.v_of[0];
+  vel[1] = (sum1 / diff) - EEPROM_data.E_Meas.v_of[1];
+
+  // Send data via UART to python
+  uint32_t crc_temp = 0;
+  for (uint8_t i = 0; i < 4; i++) {
+    CRC_reset();
+    HAL_Delay(1);
+    crc_temp = CRC_calculate(peak_delay_buffer[i], 5 * 100 * 4);
+    uart_transmit(&USART, peak_delay_buffer[i], 5 * 100 * 4);
+    uart_transmit(&USART, &crc_temp, 4);
+    HAL_Delay(1);
+    uint8_t ack = 1;
+    while(ack == 1){
+        uint8_t res = 0;
+        uint8_t to_Read = uart_bytesReadable(&USART);
+        if (to_Read > 0) {    
+          uart_receive(&USART, &res,1);
+          if(res == 0x02){
+            i--;
+            ack = 0;
+          }
+          else if (res == 0x01) {
+            ack = 0;
+          }
+        }
+    }
+  }
+
+  for (uint8_t i = 0; i < 4; i++) {
+    CRC_reset();
+    crc_temp = CRC_calculate(peak_score_buffer[i], 5 * 100 * 4);
+    uart_transmit(&USART, peak_score_buffer[i], 5 * 100 * 4);
+    uart_transmit(&USART, &crc_temp, 4);
+    HAL_Delay(1);
+    uint8_t ack = 1;
+    while(ack == 1){
+        uint8_t res = 0;
+        uint8_t to_Read = uart_bytesReadable(&USART);
+        if (to_Read > 0) {    
+          uart_receive(&USART, &res,1);
+          if(res == 0x02){
+            i--;
+            ack = 0;
+          }
+          else if (res == 0x01) {
+            ack = 0;
+          }
+        }
+    }
+  }
+
+  for (uint8_t i = 0; i < 2; i++) {
+    CRC_reset();
+    crc_temp = CRC_calculate(filter_vel_buffer[i], 3 * 100 * 4);
+    uart_transmit(&USART, filter_vel_buffer[i], 3 * 100 * 4);
+    uart_transmit(&USART, &crc_temp, 4);
+    HAL_Delay(1);
+    uint8_t ack = 1;
+    while(ack == 1){
+        uint8_t res = 0;
+        uint8_t to_Read = uart_bytesReadable(&USART);
+        if (to_Read > 0) {    
+          uart_receive(&USART, &res,1);
+          if(res == 0x02){
+            i--;
+            ack = 0;
+          }
+          else if (res == 0x01) {
+            ack = 0;
+          }
+        }
+    }
+  }
+
+  for (uint8_t i = 0; i < 2; i++) {
+    CRC_reset();
+    crc_temp = CRC_calculate(filter_score_buffer[i], 3 * 100 * 4);
+    uart_transmit(&USART, filter_score_buffer[i], 3 * 100 * 4);
+    uart_transmit(&USART, &crc_temp, 4);
+    HAL_Delay(1);
+    uint8_t ack = 1;
+    while(ack == 1){
+        uint8_t res = 0;
+        uint8_t to_Read = uart_bytesReadable(&USART);
+        if (to_Read > 0) {    
+          uart_receive(&USART, &res,1);
+          if(res == 0x02){
+            i--;
+            ack = 0;
+          }
+          else if (res == 0x01) {
+            ack = 0;
+          }
+        }
+    }
+  }
+  HAL_Delay(1);
+}
+
+
+
+// Buffer
+//float peak_delay_buffer[4][5]__attribute__((aligned(4))); 
+// float raw_vel_buffer[2][200]; // Is already saved
+// float cor_vel_buffer[2][200]; // Can be calulated later, but also not as interesting !
+float delay_buffer[4][5];
+
+void measurement_US_interleaved_py_debug2(float * vel, uint16_t n_sub_meas, float max_error, uint8_t timing) {
+  // Switches timing modes
+  if (timing == ADAPTIV_TIMING) {
+    time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas / 8.0) / (4.0 * n_sub_meas));
+  } else if (timing == LAGACY_ADAPTIV_TIMING) {
+    time_stepp = MIN_MEAS_TIME - (uint32_t)((700.0 + n_sub_meas * 4.0) / (4.0 * n_sub_meas));
+  } else {
+    time_stepp = MIN_MEAS_TIME;
+  }
+
+  // Start the measurement
+  __HAL_TIM_SET_COUNTER(&htim2, 0);
+  next_time = time_stepp;
+
+  // Shot 1
+  Shot_fire(&shot_handle[0], &shot_data[0]);
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  for (uint16_t i = 0; i < n_sub_meas - 1; i++) {
+    // Shot 2
+    Shot_unlock_data(&shot_data[0]);
+    Shot_fire(&shot_handle[1], &shot_data[1]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
+    delay_buffer[0][i] = Filter_ret_a[2].delay;
+
+
+    if (i > 0) {
+      // Complete prev measurment
+      Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+      // Save result in to buffer
+      vel_buffer[0][i - 1] = vel[0];
+      vel_buffer[1][i - 1] = vel[1];
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 3
+    Shot_unlock_data(&shot_data[1]);
+    Shot_fire(&shot_handle[2], &shot_data[2]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
+      delay_buffer[2][i] = Filter_ret_c[2].delay;
+
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 4
+    Shot_unlock_data(&shot_data[2]);
+    Shot_fire(&shot_handle[3], &shot_data[3]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
+      delay_buffer[1][i] = Filter_ret_b[2].delay;
+
+
+    // Filter Fusion for x dir
+    Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+
+    // Shot 1
+    Shot_unlock_data(&shot_data[3]);
+    Shot_fire(&shot_handle[0], &shot_data[0]);
+    next_time += time_stepp;
+    Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
+    delay_buffer[3][i] = Filter_ret_d[2].delay;
+
+    // Filter Fusion for y dir
+    Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
+    for (uint8_t j = 0; j < 3; j++) {
+      filter_vel_buffer[1][j][i] = Fusion_ret_y[j].vel;
+      filter_score_buffer[1][j][i] = Fusion_ret_y[j].score;
+    }
+
+    while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+      ;
+  }
+  // Shot 2
+  Shot_unlock_data(&shot_data[0]);
+  Shot_fire(&shot_handle[1], &shot_data[1]);
+  next_time += time_stepp;
+  Filter_run_r0(Filter_ret_a, &Filter_inst[0], shot_data[0].data);
+  delay_buffer[0][n_sub_meas - 1] = Filter_ret_a[2].delay;
+
+
+  Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+  vel_buffer[0][n_sub_meas - 2] = vel[0];
+  vel_buffer[1][n_sub_meas - 2] = vel[1];
+
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  // Shot 3
+  Shot_unlock_data(&shot_data[1]);
+  Shot_fire(&shot_handle[2], &shot_data[2]);
+  next_time += time_stepp;
+  Filter_run_r0(Filter_ret_c, &Filter_inst[1], shot_data[1].data);
+  delay_buffer[2][n_sub_meas - 1] = Filter_ret_c[2].delay;
+
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  // Shot 4
+  Shot_unlock_data(&shot_data[2]);
+  Shot_fire(&shot_handle[3], &shot_data[3]);
+  next_time += time_stepp;
+  Filter_run_r0(Filter_ret_b, &Filter_inst[2], shot_data[2].data);
+  delay_buffer[1][n_sub_meas - 1] = Filter_ret_b[2].delay;
+
+
+
+  // Filter Fusion for x dir
+  Filter_Fusion(Filter_ret_a, Filter_ret_b, Fusion_ret_x, a_ref);
+
+  while (__HAL_TIM_GET_COUNTER(&htim2) < next_time)
+    ;
+
+  Shot_unlock_data(&shot_data[3]);
+  Filter_run_r0(Filter_ret_d, &Filter_inst[3], shot_data[3].data);
+  delay_buffer[3][n_sub_meas - 1] = Filter_ret_d[2].delay;
+
+
+  // Filter Fusion for y dir
+  Filter_Fusion(Filter_ret_c, Filter_ret_d, Fusion_ret_y, a_ref);
+
+
+  // Fusion eval
+  Fusion_eval_r0(Fusion_ret_x, Fusion_ret_y, &a_ref, vel);
+
+  vel_buffer[0][n_sub_meas - 1] = vel[0];
+  vel_buffer[1][n_sub_meas - 1] = vel[1];
+
+  // Mean filter with error detection
+  double sum0 = 0, sum1 = 0;
+  uint16_t diff = n_sub_meas;
+
+  for (uint16_t i = 0; i < n_sub_meas; i++) {
+    if (vel_buffer[0][i] < 9999 && vel_buffer[1][i] < 9999) {
+      sum0 += vel_buffer[0][i];
+      sum1 += vel_buffer[1][i];
+    } else {
+      diff--;
+    }
+  }
+
+  vel[0] = (sum0 / diff);
+  vel[1] = (sum1 / diff);
+
+  // Diff filter
+  diff = n_sub_meas;
+  sum0 = 0;
+  sum1 = 0;
+
+  for (uint16_t i = 0; i < n_sub_meas; i++) {
+    if (fabsf(vel_buffer[0][i] - vel[0]) < max_error || fabsf(vel_buffer[1][i] - vel[1]) < max_error) {
+      sum0 += vel_buffer[0][i];
+      sum1 += vel_buffer[1][i];
+    } else {
+      diff--;
+    }
+  }
+
+  vel[0] = (sum0 / diff) - EEPROM_data.E_Meas.v_of[0];
+  vel[1] = (sum1 / diff) - EEPROM_data.E_Meas.v_of[1];
+
+  // Send data via UART to python
+  uint32_t crc_temp = 0;
+  CRC_reset();
+  HAL_Delay(1);
+  crc_temp = CRC_calculate(delay_buffer, 5 * 4 * 4);
+  uart_transmit(&USART, delay_buffer, 5 * 4 * 4);
+  uart_transmit(&USART, &crc_temp, 4);
+  
+}
+#endif

@@ -91,7 +91,7 @@ DMA_HandleTypeDef hdma_adc1;
     hdma_tim1_up.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_tim1_up.Init.MemDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_tim1_up.Init.Mode = DMA_NORMAL;
-    hdma_tim1_up.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_tim1_up.Init.Priority = DMA_PRIORITY_HIGH; // Changed from low to high
     hdma_tim1_up.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     
     __HAL_LINKDMA(&htim1,hdma[TIM_DMA_ID_UPDATE],hdma_tim1_up);
@@ -178,7 +178,7 @@ DMA_HandleTypeDef hdma_adc1;
   hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
   hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   hdma_adc1.Init.Mode = DMA_NORMAL;
-  hdma_adc1.Init.Priority = DMA_PRIORITY_LOW; //Changed
+  hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH; // Changed from low to high
   hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
   HAL_DMA_Init(&hdma_adc1);
 
@@ -220,6 +220,9 @@ DMA_HandleTypeDef hdma_adc1;
   // Lift off
   HAL_TIM_OC_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_Base_Start(&htim1);
+
+
+
 
   return EXIT_SUCCESS;
 }
@@ -471,6 +474,10 @@ uint8_t Shot_generate_gpio_from_Key_3(uint8_t *KEY, Transceiver_handle *handle) 
     if (SHOT_KEY_LENGTH * SHOT_DMA_CYCLES_PER_PERIODE >= SHOT_DMA_LENGTH) {
       return EXIT_FAILURE; // Key to long
     }
+    //for (uint16_t i = SHOT_KEY_LENGTH * SHOT_DMA_CYCLES_PER_PERIODE; i < SHOT_DMA_LENGTH; i++) {
+
+    //  handle[j].gpio_data[i] = handle[j].gpio_data[i] & ~handle[j].TR_CC;
+    //}
     }
 }
 

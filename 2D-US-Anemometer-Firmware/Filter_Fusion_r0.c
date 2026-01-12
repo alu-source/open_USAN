@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "Algo_helper.h"
+#include "arm_math.h"
 #include "stdlib.h"
 #include "main.h"
 #include "math.h"
@@ -29,9 +29,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include "Filter_Fusion_r0.h"
 #include "Shared.h"
 #include "Sensor_config.h"
+#include "stdio.h"
+
 
 float t_0;
 float l_corr_a, l_corr_b, l_corr_c;
+
+
+
 
 //List for speed of sound Combinations 
 uint8_t a_combination_list_a[] __attribute__((section(".CCM_VAR"))) = {0,0,1,1,2,2,3,3,4};
@@ -46,7 +51,7 @@ uint8_t s_combination_list_length[] __attribute__((section(".CCM_VAR"))) = {1,2,
 
 
  
-uint8_t Filter_Fusion(Filter_return_data * filter_a, Filter_return_data * filter_b,Fusion_return_candidate * fusion, float a_ref);
+ uint8_t Filter_Fusion(Filter_return_data * filter_a, Filter_return_data * filter_b,Fusion_return_candidate * fusion, float a_ref);
 
 uint8_t Filter_Fusion_init(EEPROM_Fusion_OBJ * data){
 

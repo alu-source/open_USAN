@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 */
 #pragma  once
 #include "Filter_Fusion_r0.h"
+#include "Matched_Filter_r0.h"
 #include "Unittest.h"
 
 /**

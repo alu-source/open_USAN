@@ -23,6 +23,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 */
 
 #pragma once
+#include "DAC_AD5732.h"
+#include "Shot.h"
 #include "Shared.h"
 #include "Unittest.h"
 
@@ -40,8 +42,7 @@ void measurement_init(EEPROM_Meas_OBJ * meas_data);
 
 /**
   Single measurement 
-  not used, but useful for understanding the process
-  */
+*/
 void measurement_US(float * vel);
 
 /**
@@ -50,7 +51,6 @@ void measurement_US(float * vel);
 void measurement_null (EEPROM_Filter_OBJ * filter_data);
 
 /**
-  Interleaved measurement for higher frequency measurements
 */
 void measurement_US_interleaved(float * vel);
 
@@ -69,3 +69,8 @@ void measurement_US_calibration(float * vel, uint16_t sub_meas, float max_error,
     test under no wind speed condition ! 
 */
 void measurement_US_interleaved_PPR(uint8_t n_meas, float * vel, float * score, float * std);
+
+
+
+void measurement_US_interleaved_py_debug(float* vel, uint16_t n_sub_meas, float max_error, uint8_t timing);
+void measurement_US_interleaved_py_debug2(float* vel, uint16_t n_sub_meas, float max_error, uint8_t timing);

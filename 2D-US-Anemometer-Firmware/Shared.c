@@ -209,6 +209,20 @@ void System_clock_Init() {
   LED_0.bank = BANK_B;
   LED_0.num = 8;
 
+  //PE 10
+  LED_init.pin.bank = BANK_E;
+  LED_init.pin.num = 10;
+  LED_init.mode =  INPUT;
+  LED_init.speed = SPEED_LOW;
+  //LED_init.pull = PULL_DOWN;
+  LED_init.pull = PULL_UP; //for testing
+
+  gpio_pin_init(&LED_init);
+
+
+  PE10.bank = BANK_E;
+  PE10.num = 10;
+
   //LED_1 PB9
   LED_init.pin.bank = BANK_B;
   LED_init.pin.num = 9;

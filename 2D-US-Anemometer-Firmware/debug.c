@@ -33,7 +33,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include "Matched_Filter_r0.h"
 #include "Filter_Fusion_r0.h"
 #include "Fusion_eval_r0.h"
-#include "Algo_helper.h"
 #include "measurement.h"
 #include "debug.h"
 #include "Unittest.h"

@@ -51,7 +51,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 //Randome  Junk
 uint8_t Buffer[1024];
 extern uart_t USART;
-uint8_t key[SHOT_KEY_LENGTH];
+//uint8_t key[] = {1,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0}; //Used for First Messuremnts 
+uint8_t key[SHOT_KEY_LENGTH];// = {0,1,1,1,0,0,0,1,0,1,1,0}; //USED after MR0002 until MR0004
+//uint8_t key[] = {0,1,1,0,0,0,1,1,0,1,1,0};
+//Debug pin PE10
 gpio_pin_init_t gpio_pin_C9;
 extern gpio_pin_t PE10;
 
@@ -84,6 +87,88 @@ uint8_t unit_test_fast(void);
 uint8_t unit_test_full(void);
 uint8_t unit_usb(void);
 
+uint8_t unit_test_full() {
+
+  //Clock Init
+  System_clock_Init();
+
+  //Uart
+  packet_Init();
+  //packet_send((uint8_t*)RAM_DUMMY, 1024);
+
+  
+  // SRAM Section
+  
+  //if (SRAM_Init() != EXIT_SUCCESS) { // SRAM did not Start
+  //  printf("SRAM Init Failed \n");
+    //while (1);
+  //}
+
+  // Test DAC -> Cycle -10 0 10V for 20s
+  DAC_Init();
+
+  for (uint8_t i = 0; i < 1; i++) {
+    DAC_write(-9.5, 9.5, 1);
+    HAL_Delay(500);
+
+    for(int8_t j = -95; j <= 0; j ++){
+      DAC_write((float)j/10.0, (float)-j/10.0, 1);
+      HAL_Delay(1);
+    }
+    HAL_Delay(500);
+
+    for(int8_t j = 0; j <= 95; j ++){
+      DAC_write((float)j/10.0, (float)-j/10.0, 1);
+      HAL_Delay(1);
+    }
+    HAL_Delay(500);
+
+  }
+
+  // Shot test...
+  Shot_Init(shot_handle);
+  //Convert key 
+  uint16_t key_word = KEY_DEFAULT;
+  for(uint8_t i = 0; i < SHOT_KEY_LENGTH; i++){
+        key[i] = CHECK_BIT(key_word,i); 
+  }
+
+  Shot_generate_gpio_from_Key(key, shot_handle);
+
+
+  uint16_t index[4];
+  uint16_t max[4];
+
+  for (uint8_t i = 0; i < 4; i++) {
+    Shot_fire(&shot_handle[i], &shot_data[i]);
+    HAL_Delay(100);
+    if (Shot_unlock_data(&shot_data[i]) != EXIT_SUCCESS) {
+      char txt_buffer [70];
+      uint8_t str_ln = sprintf(txt_buffer,"Failed to take a Shot\n");
+      uart_transmit(&USART,txt_buffer,str_ln);
+
+    }
+    arm_max_q15((q15_t*)&shot_data[i].data, SHOT_DMA_LENGTH,(q15_t*)&max[i], (uint32_t *)&index[i]);
+  }
+
+  //Analyse 
+  if(abs(index[0] - index[1]) > 10 || abs(index[1] - index[2]) > 10 || abs(index[2] - index[3]) > 10){
+    char txt_buffer [70];
+    uint8_t str_ln = sprintf(txt_buffer,"Shot timing inconsistent\n");
+    uart_transmit(&USART,txt_buffer,str_ln);
+  }
+
+  for(uint8_t i = 0; i < 4; i++){
+    if(max[i] < 2500){
+    char txt_buffer [70];
+    uint8_t str_ln = sprintf(txt_buffer,"Amplitude of TR %d to low !\n",i);
+    uart_transmit(&USART,txt_buffer,str_ln);
+    }
+  }
+  return EXIT_SUCCESS;
+  
+}
+
 
 uint8_t unit_startup(){
   uint8_t error = 0;
@@ -96,7 +181,6 @@ uint8_t unit_startup(){
   HAL_Delay(100);
   //SRAM_Init();
   Shot_Init(shot_handle);
-
   //Convert key 
   for(uint8_t i = 0; i < SHOT_KEY_LENGTH; i++){
         key[i] = CHECK_BIT(KEY_DEFAULT,i); 
@@ -118,7 +202,7 @@ uint8_t unit_startup(){
 
   if(crc != crc_eeprom){
 
-    char txt_buffer [164];
+    char txt_buffer [162];
     uint8_t str_ln = sprintf(txt_buffer,"EEPROAM is Corrupted!\n Sensor has to undergo initial setup!\n Nessesary stepps:\n\t->Zero measuremnt (-n)\n\t->Trigger config (-t)\n\t->Save to EEPROM (-w)\n\t->Exit (-e)\n\n");
     uart_transmit(&USART,txt_buffer,str_ln);
     EEPROM_FLAG = 1;
@@ -206,7 +290,18 @@ uint8_t unit_startup(){
     crit_error ++;
     }
   }
-
+  
+  /*
+  while(crit_error > 0){
+    char txt_buffer [60];
+    uint8_t str_ln = sprintf(txt_buffer,"Due to critical error the Sensor has stopped!\n");
+    uart_transmit(&USART,txt_buffer,str_ln);
+    DAC_write(-4.5, -4.5, 1);
+    HAL_Delay(50);
+    DAC_write(4.5, 4.5, 1);
+    HAL_Delay(50);
+  }
+  */
 
   return EXIT_SUCCESS;
 }
@@ -397,9 +492,9 @@ uint8_t unit_usb(void){
             }
 
         }
-        else if (mode == 4){  // Get 100 raw and corrected values from the sensor -> trigger is used !
+        else if (mode == 4){  // Get 100 raw and corrected values from the sensor -> trigger is used ! -> Always at 40 Hz
 
-          //Wait for trigger sync
+          // Wait for trigger sync
           TRIGGER_EVENT_FLAG = 0;
           while (TRIGGER_EVENT_FLAG == 0) {
             __NOP();
@@ -751,6 +846,7 @@ uint8_t unit_usb(void){
 
       case 'P':
       case 'p':
+
           sprintf(txt_buffer,"USAN\n");
           tr_len = strlen(txt_buffer);
           uart_transmit(&USART,txt_buffer,tr_len);
@@ -774,17 +870,35 @@ uint8_t unit_usb(void){
           }
 
       break;
-    //case 'd':
-    //case 'D':
-      //int debug_key;
-      //arg = sscanf((char*)Buffer + cmd_start + 2,"%d", &debug_key);
+      #ifdef PYTHON_INTERFACE
+        case 'd':
+        case 'D':
+          float vel[2];
+          measurement_US_interleaved_py_debug(vel, 100, 15, ADAPTIV_TIMING);
+        //int debug_key;
+        //arg = sscanf((char*)Buffer + cmd_start + 2,"%d", &debug_key);
       
-      //  //Use key debug function 
-      //debug_send_shot_data((uint16_t)debug_key);
-      //debug_timing();
+        //  //Use key debug function 
+        //debug_send_shot_data((uint16_t)debug_key);
+        //debug_timing();
 
-      //break;
-    
+        break;
+
+
+        case 'm':
+        case 'M':
+        for(uint8_t l = 0; l < 100; l++){
+          measurement_US_interleaved_py_debug2(vel, 5, 15, ADAPTIV_TIMING);
+        }
+        //int debug_key;
+        //arg = sscanf((char*)Buffer + cmd_start + 2,"%d", &debug_key);
+      
+        //  //Use key debug function 
+        //debug_send_shot_data((uint16_t)debug_key);
+        //debug_timing();
+
+        break;
+        #endif
     }
     if(exit_flag == 42){
       return 42;
