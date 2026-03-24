@@ -439,8 +439,7 @@ void measurement_US_interleaved(float* vel) {
   vel[1] = (sum1 / diff) - EEPROM_data.E_Meas.v_of[1];
 
 // Correction
-// DEBUG
-// correction_apply(vel, &EEPROM_data.E_Cali);
+correction_apply(vel, &EEPROM_data.E_Cali);
 
 // Flipping and inverting axis as needed
 #if SWAP_AXIS == true
