@@ -55,6 +55,5 @@ A semi-automated [skript] ("/2D-US-Calibration/Skript/Sensor_calibration_and_val
 
 
 
-[![DOI](https://zenodo.org/badge/1063831607.svg)](https://doi.org/10.5281/zenodo.17201148)
-
+[![DOI](https://zenodo.org/badge/1063831607.svg)](https://doi.org/10.5281/zenodo.19187845)
 
